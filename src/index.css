@@ -252,5 +252,6 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .import-box .seg { margin-top: 4px; }
 .progress-page .btn { margin-top: 4px; }
 
-/* Citations coraniques ﴿…﴾ : police d'apparat, comme les vers */
-.quran { font-family: var(--f-display); font-style: normal; font-size: 1.12em; line-height: 1.9; }
+/* Citations : Coran {{…}} affiché ﴿…﴾, hadith {…} affiché «…», police d'apparat comme les vers */
+.quran, .hadith { font-family: var(--f-display); font-style: normal; font-size: 1.12em; line-height: 1.9; }
+.hadith { font-size: 1.08em; }

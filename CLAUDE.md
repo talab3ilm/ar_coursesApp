@@ -208,5 +208,7 @@ traitements longs délégués à des sous-agents en arrière-plan.
   « دمج » = boîte la plus haute par carte, ou « استبدال »), bandeau d'avertissement, rappel
   dans l'onglet révision après 30 réponses sans export ou 20 cartes jamais exportées.
   Format du fichier : `{app:"ar_coursesApp", version:1, exportedAt, cards:{guid:{box,due,seen}}}`.
-- Citations ﴿…﴾ (dans les deux sens) et {…} rendues en Amiri partout (`src/lib/quran.jsx` : plugin remark
-  pour le résumé, `withQuran()` pour les cartes et la carte mentale).
+- Convention de citation dans les résumés et cartes (décidée avec l'utilisateur le 2026-10-13) :
+  `{{…}}` = Coran, affiché ﴿…﴾ ; `{…}` = hadith, affiché «…» ; ﴿…﴾ écrit directement = Coran.
+  Tout en Amiri (`src/lib/quran.jsx` : plugin remark pour le résumé, `withQuran()` pour les
+  cartes et la carte mentale).

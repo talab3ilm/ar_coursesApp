@@ -1,20 +1,31 @@
-// Mise en forme automatique des citations : tout passage entre ﴿ et ﴾ (Coran) ou entre { et }
-// (hadith, nass) est rendu dans la police d'apparat (Amiri), comme les vers. Rien à changer
-// dans les fichiers du vault. Les crochets ornés sont acceptés dans les deux sens (saisie RTL).
-const QURAN = /([﴿﴾][^﴿﴾]*[﴿﴾]|\{[^{}]*\})/g
+// Mise en forme automatique des citations, convention du 2026-10-13 :
+//   {{…}}  Coran   -> affiché ﴿…﴾ en police d'apparat (Amiri)
+//   {…}    hadith  -> affiché «…» en police d'apparat
+//   ﴿…﴾    Coran déjà encadré (crochets acceptés dans les deux sens, saisie RTL) -> inchangé
+// Rien à changer dans les fichiers du vault au-delà de cette convention.
+const CITATION = /(\{\{[^{}]*\}\}|\{[^{}]*\}|[﴿﴾][^﴿﴾]*[﴿﴾])/g
 
-/** Texte brut -> tableau de fragments React (chaînes et <span class="quran">). */
+/** Classe et texte affiché d'un fragment reconnu, ou null. */
+function classify(part) {
+  if (part.startsWith('{{')) return { className: 'quran', text: `﴿${part.slice(2, -2).trim()}﴾` }
+  if (part.startsWith('{')) return { className: 'hadith', text: `«${part.slice(1, -1).trim()}»` }
+  if (/^[﴿﴾]/.test(part)) return { className: 'quran', text: `﴿${part.slice(1, -1).trim()}﴾` }
+  return null
+}
+
+/** Texte brut -> tableau de fragments React (chaînes et <span>). */
 export function withQuran(text) {
   if (!text || !/[﴿﴾{]/.test(text)) return text
-  return text.split(QURAN).map((part, i) =>
-    /^[﴿﴾{]/.test(part) ? (
-      <span key={i} className="quran" lang="ar">
-        {part}
+  return text.split(CITATION).map((part, i) => {
+    const c = classify(part)
+    return c ? (
+      <span key={i} className={c.className} lang="ar">
+        {c.text}
       </span>
     ) : (
       part
-    ),
-  )
+    )
+  })
 }
 
 /** Plugin remark : même traitement dans le Markdown du résumé (nœuds texte uniquement). */
@@ -24,11 +35,12 @@ export function remarkQuran() {
     const out = []
     for (const child of node.children) {
       if (child.type === 'text' && /[﴿﴾{]/.test(child.value)) {
-        for (const part of child.value.split(QURAN)) {
+        for (const part of child.value.split(CITATION)) {
           if (!part) continue
+          const c = classify(part)
           out.push(
-            /^[﴿﴾{]/.test(part)
-              ? { type: 'emphasis', data: { hName: 'span', hProperties: { className: ['quran'], lang: 'ar' } }, children: [{ type: 'text', value: part }] }
+            c
+              ? { type: 'emphasis', data: { hName: 'span', hProperties: { className: [c.className], lang: 'ar' } }, children: [{ type: 'text', value: c.text }] }
               : { type: 'text', value: part },
           )
         }
