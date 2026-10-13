@@ -56,6 +56,12 @@ insert into public.subjects (id, name_ar, position) values
   ('sarf',   'الصرف',             6)
 on conflict (id) do update set name_ar = excluded.name_ar, position = excluded.position;
 
+-- Droits SQL : les projets Supabase récents ne donnent plus rien à anon/authenticated
+-- par défaut ; sans ces grants, PostgREST répond « permission denied » avant même RLS.
+grant usage on schema public to anon, authenticated;
+grant select on public.subjects, public.courses, public.cards, public.mindmaps, public.chapters
+  to anon, authenticated;
+
 -- RLS : tout est fermé par défaut, on n'ouvre que la lecture des lignes publiées.
 alter table public.subjects enable row level security;
 alter table public.courses  enable row level security;
