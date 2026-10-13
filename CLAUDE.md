@@ -183,3 +183,6 @@ traitements longs délégués à des sous-agents en arrière-plan.
 - Le frontmatter YAML des résumés est retiré par `publish.py` (et par le front par sécurité).
 - Captures de contrôle faites avec Playwright (Chromium en cache `~/.cache/ms-playwright`,
   `playwright-core` installé dans le scratchpad, pas dans le dépôt).
+- Date affichée d'un cours YouTube = date de mise à disposition sur la plateforme, prise dans
+  `raw/academy/<matière>/<date> الدرس N - …/meta.md` (même matière, même numéro) ; repli
+  sur la date de la vidéo. Demande de l'utilisateur du 2026-10-13.

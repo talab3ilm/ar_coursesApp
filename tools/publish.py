@@ -14,7 +14,9 @@ Règles :
 - un cours est publiable s'il contient meta.md, resume-ok.md et anki.tsv ;
 - les lignes courses.managed_by = 'manual' ne sont jamais touchées ;
 - un cours publié par le pipeline et absent du vault est dépublié, pas supprimé ;
-- guid d'une carte = colonne guid du TSV si présente, sinon hachage (course_id, question).
+- guid d'une carte = colonne guid du TSV si présente, sinon hachage (course_id, question) ;
+- date d'un cours YouTube = date de la leçon plateforme de même matière et numéro (raw/academy/),
+  sinon date de la vidéo.
 """
 from __future__ import annotations
 
@@ -191,8 +193,27 @@ def academy_course(folder: Path, meta: dict, skipped: list[str]) -> Course | Non
     return course
 
 
+def platform_dates(vault: Path) -> dict[tuple[str, int], str]:
+    """(matière, numéro de leçon) -> date de mise à disposition sur la plateforme, d'après
+    tous les dossiers raw/academy/, publiables ou non. Sert de date d'affichage aux cours
+    YouTube : la date de la vidéo (souvent antérieure de plusieurs années) n'intéresse pas
+    les étudiants."""
+    dates: dict[tuple[str, int], str] = {}
+    for folder in sorted((vault / "raw" / "academy").glob("*/*/")):
+        meta_path = folder / "meta.md"
+        if not meta_path.exists():
+            continue
+        meta = parse_frontmatter(meta_path)
+        subject = SERIES_TO_SUBJECT.get(meta.get("subject", ""))
+        lesson, date = meta.get("lesson", ""), meta.get("date", "")
+        if subject and lesson.isdigit() and date:
+            dates[(subject, int(lesson))] = date
+    return dates
+
+
 def scan_vault(vault: Path, skipped: list[str]) -> list[Course]:
     courses: list[Course] = []
+    dates = platform_dates(vault)
     folders = sorted((vault / "raw" / "youtube").glob("*/")) + sorted((vault / "raw" / "academy").glob("*/*/"))
     for folder in folders:
         missing = [f for f in REQUIRED if not (folder / f).exists()]
@@ -203,6 +224,8 @@ def scan_vault(vault: Path, skipped: list[str]) -> list[Course]:
         builder = academy_course if meta.get("source") == "academy" else youtube_course
         course = builder(folder, meta, skipped)
         if course:
+            if builder is youtube_course and course.number is not None:
+                course.date = dates.get((course.subject_id, course.number), course.date)
             courses.append(course)
     # Numéro manquant : ordre des dates au sein de la matière.
     for subject in {c.subject_id for c in courses}:
