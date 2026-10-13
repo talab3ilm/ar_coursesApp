@@ -1,0 +1,157 @@
+# CLAUDE.md — ar_coursesApp (vitrine en ligne des cours du second cerveau)
+
+Troisième dépôt du projet : `https://github.com/talab3ilm/ar_coursesApp` (créé le
+2026-10-13, vide). Il publie pour les
+étudiants de l'académie le contenu produit par le pipeline : vidéos, résumés cliquables,
+quiz tirés des cartes Anki, cartes mentales. Rien n'est encore codé ; ce fichier fixe les
+décisions prises le 2026-10-13 et sert de constitution au dépôt.
+
+## Les trois dépôts
+
+| Dépôt | Rôle | Visibilité |
+|---|---|---|
+| `ar_audioToMd` | pipeline : YouTube, PDF, plateforme → Markdown, résumés, cartes Anki | privé |
+| `secondBrain` | vault Obsidian, source de vérité du contenu (`raw/`, `wiki/`) | privé |
+| `ar_coursesApp` (ici) | application web + alimentation automatique depuis le vault | public possible |
+
+Le vault garde sa structure actuelle, on n'y touche pas pour l'appli. Git ne sait pas pousser
+une partie d'un dépôt vers un autre dépôt : c'est une action CI de ce dépôt qui lit le vault
+et en extrait les fichiers utiles (voir « Alimentation »). Le contenu vit dans Supabase, pas
+dans ce dépôt, ce qui permet de le rendre public sans exposer transcriptions et livres.
+
+## Origine et crédit
+
+L'interface repart de `miniApp.html`, première version du projet générée avec Claude par
+Abdelali, étudiant de l'académie, qui a donné son accord le 2026-10-13 pour qu'on la
+reprenne et l'enrichisse. Le fichier original est conservé tel quel, hors git, dans
+`docs/miniApp.html` et Abdelali crédité dans le README et dans la page « à propos » de
+l'appli.
+
+Ce qu'on reprend de miniApp : la mise en page RTL (Amiri, IBM Plex Sans Arabic), l'arbre
+dépliable, la vue révision avec « عرفتُها », la recherche, le schéma de nœud de la carte
+mentale. Ce qu'on corrige : identifiants de progression instables (indexés par ordre de
+parcours), recherche sensible au tashkeel et aveugle aux questions, cours sélectionné non
+mémorisé, données mélangées au code.
+
+## Stack retenue
+
+- **Front** : React + Vite, interface en arabe, `dir="rtl"`. Hébergé sur **Vercel**
+  (déploiement automatique à chaque push sur `main`).
+- **Données** : **Supabase** (Postgres + Storage + Auth), projet `coursesApp`, région
+  Europe, organisation `talab3ilm`, lié au dépôt GitHub : les migrations SQL commitées dans
+  `supabase/migrations/` sont appliquées à chaque push. Le projet a été créé avec RLS
+  automatique activé et sans exposition automatique des tables : chaque table est exposée
+  explicitement dans sa migration (`grant select` à `anon`, politiques RLS). Le front lit
+  avec la clé `anon` et des règles RLS en lecture seule sur les lignes publiées. Pas de
+  backend maison : le tableau de bord admin écrit directement dans Supabase, authentifié.
+- **Alimentation** : GitHub Actions dans ce dépôt + script Python `tools/publish.py`
+  (clé `service_role`, secret GitHub uniquement, jamais dans le front).
+- **Étudiants** : pas de compte. Progression en `localStorage`, exportable et importable
+  dans un fichier JSON, avec avertissement visible sur la perte en cas de vidage du cache.
+- Repli envisagé si Supabase pose problème : Render + FastAPI.
+
+Risques connus des offres gratuites : un projet Supabase inactif sept jours est mis en
+pause (prévoir un ping quotidien dans l'action CI) ; quotas Storage et bande passante à
+surveiller si on héberge les `.apkg`.
+
+## Modèle de données (Supabase)
+
+- `subjects` : `id` (slug latin : `sira`, `fiqh`, `tajwid`, `aqida`, `nahw`, `sarf`),
+  `name_ar`, `position`.
+- `courses` : `id` (identifiant YouTube ou identifiant plateforme), `subject_id`, `number`,
+  `title`, `teacher`, `date`, `duration`, `youtube_url`, `summary_md`, `published`,
+  `managed_by` (`pipeline` ou `manual`), `updated_at`.
+- `cards` : `guid`, `course_id`, `question`, `answer`, `tags[]`, `position`.
+- `mindmaps` : `course_id`, `tree` (jsonb, schéma ci-dessous).
+- `chapters` : `course_id`, `seconds`, `title` (horodatages pour la vidéo).
+- Bucket Storage `content/<subject>/<course_id>/` : `resume.md`, `anki.tsv`, `anki.apkg`,
+  `mindmap.json`. Les fichiers y sont renommés ainsi quel que soit leur nom dans le vault.
+
+Règle de cohabitation CI / admin : l'action CI ne touche jamais une ligne `managed_by =
+manual` ; le tableau de bord peut basculer une ligne en `manual` pour figer une correction.
+
+## Alimentation depuis le vault
+
+Action `publish.yml` de ce dépôt, déclenchée par `repository_dispatch` envoyé par une action
+minimale du vault à chaque push sur `main`, plus un déclenchement manuel et un cron quotidien
+(qui sert aussi de ping Supabase). Elle clone le vault avec un jeton en lecture seule, puis
+`tools/publish.py` :
+
+1. parcourt `raw/youtube/` et `raw/academy/` ; un cours est publiable s'il contient
+   `meta.md`, `resume-ok.md` (résumé relu, même convention que `texte-ok.md`) et `anki.tsv` ;
+2. lit `meta.md` (`id`, `url`, `title`, `speaker`, `series`, `date`, `duration`) ; la
+   matière vient de `series`, le numéro du nom du dossier plateforme ou de l'ordre des dates ;
+3. renomme et téléverse les fichiers dans Storage, upserte `courses`, `cards`, `mindmaps`,
+   `chapters` ; idempotent, clé = `id` du cours ;
+4. publie (`published = true`) ; un cours retiré du vault n'est pas supprimé, il est
+   dépublié.
+
+Les `guid` des cartes doivent venir du pipeline (colonne à ajouter dans `make_cards.py`) ;
+à défaut, hachage de la question. Sans identifiant stable, la progression des étudiants se
+décale à chaque modification de deck.
+
+## Carte mentale : JSON, pas Mermaid
+
+Format canonique : arbre JSON hérité de miniApp, un nœud =
+`{"t": titre, "n": numéro?, "d": [[tag, texte, source]], "q": [[question, réponse]], "k": [enfants]}`
+avec `tag` dans `def | key | ex | diff | link | warn | nass` et `source` = page, `"خ"` ou `"+"`.
+
+Pourquoi pas Mermaid : la syntaxe mindmap de Mermaid ne porte que des libellés, sans
+définitions, questions ni sources, et son analyse est fragile. Le JSON alimente directement
+l'arbre interactif et la recherche. Le pipeline produira `mindmap.json` à partir de
+`resume-ok.md` (nouveau mode de `draft_lesson.py` dans `ar_audioToMd`) et pourra en dériver
+un bloc Mermaid pour l'affichage dans Obsidian ; le JSON reste la source.
+
+## Résumé cliquable et horodatages
+
+Convention dans le Markdown du résumé : un marqueur `[mm:ss]` ou `[h:mm:ss]` en fin de titre
+ou de paragraphe. Il est produit par un script d'alignement du pipeline qui rapproche chaque
+section du résumé des segments horodatés de `transcript.md` (similarité textuelle, pas de
+confiance aveugle au modèle). Dans l'appli, le marqueur devient un bouton qui fait sauter le
+lecteur YouTube intégré (API IFrame, `seekTo`) ; lien de secours `youtu.be/<id>?t=<s>`. Les
+mêmes marqueurs remplissent `chapters`. Dans Obsidian, le marqueur reste lisible.
+
+## Écrans prévus
+
+- Accueil : matières en onglets, cours en puces, état « قريبا » pour les matières vides.
+- Page de cours, quatre onglets : الفيديو (lecteur + chapitres), الملخص (Markdown rendu,
+  horodatages cliquables), المراجعة (cartes à retourner, QCM avec distracteurs tirés du même
+  tag, boîtes de Leitner, progression par cours), الخريطة (arbre dépliable + recherche
+  insensible au tashkeel, couvrant titres, contenus et questions).
+- Progression : bandeau d'avertissement, boutons « تصدير » / « استيراد » (fichier JSON),
+  rappel d'export quand la progression grossit.
+- `/admin` : connexion Supabase Auth (liste blanche d'e-mails), formulaire par cours
+  (matière, numéro, titre, enseignant, date, URL YouTube), dépôt de `resume.md`, `anki.tsv`,
+  `mindmap.json`, aperçu, bascule publier / dépublier, bascule `manual`.
+
+## Ordre de réalisation
+
+1. Squelette Vite + React, copie de `docs/miniApp.html`, README avec crédit. Déploiement
+   Vercel d'une page vide.
+2. Projet Supabase, schéma, RLS, bucket ; `tools/publish.py` lancé à la main sur le vault.
+3. Front de consultation (accueil, page de cours, révision, carte) branché sur Supabase.
+4. Progression locale avec export / import.
+5. Action CI `publish.yml` + action de dispatch dans le vault.
+6. Tableau de bord `/admin`.
+7. Côté pipeline (`ar_audioToMd`) : `guid` dans les cartes, mode mindmap, script d'alignement
+   des horodatages.
+
+## Conventions du dépôt
+
+- Identité git `talab3ilm` (voir la mémoire « Identité git talab3ilm »). Commits en
+  français, sujet « zone : ce qui change » (`front`, `admin`, `publish`, `ci`, `docs`).
+- Interface en arabe ; chiffres latins partout ; code et identifiants en anglais ; commentaires
+  et documentation en français.
+- Secrets : `.env.local` (front, clés `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`) hors
+  git ; `SUPABASE_SERVICE_ROLE_KEY` et le jeton de lecture du vault uniquement dans les
+  secrets GitHub.
+- Python des outils : `python3 -I` pour tout script qui lit des fichiers venant du vault.
+- Aucun contenu de cours (résumés, transcriptions, PDF) n'est commité ici, sauf un jeu
+  d'essai minimal dans `fixtures/` pour les tests.
+
+## Règles de session et de contexte
+
+Mêmes règles que `ar_audioToMd/CLAUDE.md` : une session par tâche, passation en mémoire à
+chaque fin de tâche notable, jamais de gros fichier entier dans le contexte (`miniApp.html`
+fait 48 k caractères : lecture par tranches ou par sous-agent), sorties Bash courtes,
+traitements longs délégués à des sous-agents en arrière-plan.

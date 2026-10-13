@@ -1,0 +1,41 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Secrets et environnement (voir CLAUDE.md)
+.env
+.env.*
+!.env.example
+.vercel
+
+# Contenu de cours : jamais commité (Supabase), sauf fixtures/ pour les tests
+*.apkg
+
+# Python (tools/)
+__pycache__/
+*.pyc
+.venv/
+
+# Ébauche originale de l'étudiant : conservée en local, non commitée
+docs/miniApp.html
