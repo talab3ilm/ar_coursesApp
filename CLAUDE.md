@@ -65,7 +65,9 @@ surveiller si on héberge les `.apkg`.
 - `mindmaps` : `course_id`, `tree` (jsonb, schéma ci-dessous).
 - `chapters` : `course_id`, `seconds`, `title` (horodatages pour la vidéo).
 - Bucket Storage `content/<subject>/<course_id>/` : `resume.md`, `anki.tsv`, `anki.apkg`,
-  `mindmap.json`. Les fichiers y sont renommés ainsi quel que soit leur nom dans le vault.
+  `mindmap.json`. Les fichiers y sont renommés ainsi quel que soit leur nom dans le vault :
+  `publish.py` accepte `anki*.tsv`, `anki*.apkg` et `resume-ok.md` ou `resume.md` (le premier
+  trouvé), et ne modifie jamais le vault lui-même.
 
 Règle de cohabitation CI / admin : l'action CI ne touche jamais une ligne `managed_by =
 manual` ; le tableau de bord peut basculer une ligne en `manual` pour figer une correction.
@@ -156,7 +158,7 @@ chaque fin de tâche notable, jamais de gros fichier entier dans le contexte (`m
 fait 48 k caractères : lecture par tranches ou par sous-agent), sorties Bash courtes,
 traitements longs délégués à des sous-agents en arrière-plan.
 
-## État au 2026-10-13 (étape 2)
+## État au 2026-10-13 (étapes 2 et 3)
 
 - `supabase/schema.sql` : schéma complet, RLS lecture publique sur les lignes publiées,
   bucket `content` public en lecture. À exécuter dans l'éditeur SQL de Supabase.
@@ -168,3 +170,16 @@ traitements longs délégués à des sous-agents en arrière-plan.
 - Cours de la plateforme : `id = academy-<task_id>`, numéro = `lesson`, titre construit.
 - Cours YouTube : `teacher` ignoré quand `speaker` recopie le titre (défaut du pipeline).
 - Site déployé : <https://coursesapp-lac.vercel.app/>.
+- Étape 3 faite : front React branché sur Supabase. Routes `/`, `/c/:id?tab=video|summary|
+  review|map`, `/about` (`vercel.json` réécrit tout vers `index.html`). Modules :
+  `src/lib/api.js` (lectures), `arabic.js` (normalisation tashkeel, horodatages),
+  `progress.js` (Leitner 5 boîtes en localStorage, clé `ar_coursesApp.progress.v1`),
+  `youtube.js` (API IFrame). Le lecteur reste monté quand on change d'onglet, pour que
+  les horodatages du résumé fassent `seekTo` sans recharger.
+- Révision : file des cartes dues, modes « بطاقات » et « اختيار من متعدد » (distracteurs
+  pris dans le même tag, hors tag de matière), barre de répartition par boîte.
+- Carte mentale : identifiant de nœud = chemin des titres ; recherche normalisée qui couvre
+  titres, contenus et questions, avec compteur et « لا نتائج ».
+- Le frontmatter YAML des résumés est retiré par `publish.py` (et par le front par sécurité).
+- Captures de contrôle faites avec Playwright (Chromium en cache `~/.cache/ms-playwright`,
+  `playwright-core` installé dans le scratchpad, pas dans le dépôt).

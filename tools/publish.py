@@ -43,6 +43,7 @@ SERIES_TO_SUBJECT = {
 REQUIRED = ("meta.md", "resume-ok.md", "anki.tsv")
 STORAGE_FILES = {"resume-ok.md": "resume.md", "anki.tsv": "anki.tsv", "mindmap.json": "mindmap.json"}
 MIME = {".md": "text/markdown", ".tsv": "text/tab-separated-values", ".json": "application/json"}
+FRONTMATTER = re.compile(r"\A---\s*\n.*?\n---[ \t]*\n?", re.DOTALL)
 TASHKEEL = re.compile(r"[ؐ-ًؚ-ٰٟۖ-ۭـ]")
 TIMESTAMP_HEADING = re.compile(r"^#{1,6}\s+(.*?)\s*\[(\d{1,2}):(\d{2})(?::(\d{2}))?\]\s*$")
 TRAILING_NUMBER = re.compile(r"(?:\bEp\.?|[-–]|الدرس|الحلقة)\s*0*(\d{1,3})\s*$", re.IGNORECASE)
@@ -93,6 +94,12 @@ def parse_frontmatter(path: Path) -> dict:
     return meta
 
 
+def strip_frontmatter(text: str) -> str:
+    """Retire le bloc YAML initial (--- … ---) que le pipeline met en tête des résumés."""
+    m = FRONTMATTER.match(text)
+    return text[m.end():].lstrip("\n") if m else text
+
+
 def normalize(text: str) -> str:
     """Sans tashkeel, espaces compactés : base stable pour hacher une question."""
     text = unicodedata.normalize("NFC", text)
@@ -137,7 +144,7 @@ def parse_chapters(summary_md: str, course_id: str) -> list[dict]:
 
 
 def read_common(course: Course, folder: Path) -> None:
-    course.summary_md = (folder / "resume-ok.md").read_text(encoding="utf-8")
+    course.summary_md = strip_frontmatter((folder / "resume-ok.md").read_text(encoding="utf-8"))
     course.cards = parse_cards(folder / "anki.tsv", course.id)
     course.chapters = parse_chapters(course.summary_md, course.id)
     mindmap = folder / "mindmap.json"
@@ -330,8 +337,8 @@ def main() -> int:
             if cid not in present and r["managed_by"] == "pipeline" and r["published"]:
                 sb.patch("courses", f"id=eq.{urllib.parse.quote(cid)}", {"published": False, "updated_at": "now()"})
                 print(f"  dépublié {cid}")
-    for s in skipped:
-        print(f"  ignoré  {s}")
+        for s in skipped:
+            print(f"  ignoré  {s}")
     return 0
 
 
