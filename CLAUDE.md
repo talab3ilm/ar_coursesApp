@@ -193,3 +193,10 @@ traitements longs délégués à des sous-agents en arrière-plan.
   `transcript.md` (mots rares, programmation dynamique monotone). Approximatif sur les
   sous-sections courtes ; un marqueur écrit à la main dans `resume-ok.md` est conservé tel
   quel. Contrôle : `python3 -I tools/align.py <resume-ok.md> <transcript.md>`.
+- Chapitres et vidéo (2026-10-13) : la table `chapters` reçoit les **chapitres YouTube** de la
+  vidéo source (`yt-dlp`, chemin via `--yt-dlp` ou `$YTDLP`, cache en base, `--refresh-chapters`
+  pour recharger). Les titres du résumé prennent le temps du chapitre de titre semblable,
+  sinon l'alignement sur la transcription borné par les chapitres voisins.
+  `tools/overrides.json` permet, par cours, d'afficher une autre vidéo (`youtube_url`) tout
+  en gardant les chapitres d'origine (`chapters_from`) : cas de la sira, nouvelle vidéo
+  `x_8xVueL8FQ` sans chapitres, horodatages de `Y2iDJNpa7wg`. En CI, installer `yt-dlp`.

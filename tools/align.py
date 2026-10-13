@@ -23,16 +23,22 @@ HAS_MARKER = re.compile(r"\[\d{1,2}:\d{2}(?::\d{2})?\]\s*$")
 WORD = re.compile(r"[ء-ي٠-٩]{3,}")
 STOP = set("""الله على إلى من في عن هذا هذه ذلك تلك التي الذي الذين وقد قال كان كانت حتى لكن ثم كما
 أن إن أو لا ما لم لن بين عند عليه عليها فيه فيها منه منها إنه أنه وهو وهي هو هي هم كل بعض
-غير مثل أيضا أيضاً المحاضر الدرس الشيخ الأستاذ قوله يعني طبعا طيب""".split())
+غير مثل أيضا أيضاً المحاضر الدرس الشيخ الأستاذ قوله يعني طبعا طيب
+اولا ثانيا ثالثا رابعا خامسا سادسا سابعا ثامنا تاسعا عاشرا""".split())
+SUFFIXES = ("ته", "ها", "ات", "ون", "ين", "ه")
 PREFIXES = ("وال", "فال", "بال", "كال", "لل", "ال", "و", "ف", "ب", "ل", "ك")
 
 
 def normalize_word(w: str) -> str:
     w = TASHKEEL.sub("", w)
     w = re.sub("[أإآٱ]", "ا", w).replace("ى", "ي").replace("ة", "ه")
-    for p in PREFIXES:  # racine approximative : on retire un préfixe courant
+    for p in PREFIXES:  # racine approximative : on retire un préfixe courant…
         if w.startswith(p) and len(w) - len(p) >= 3:
             w = w[len(p):]
+            break
+    for suf in SUFFIXES:  # … et un suffixe courant (ته / ها / ات / ون / ين / ه)
+        if w.endswith(suf) and len(w) - len(suf) >= 3:
+            w = w[: -len(suf)]
             break
     return w
 
@@ -138,13 +144,66 @@ def fmt(seconds: float) -> str:
     return f"[{h}:{m:02d}:{sec:02d}]" if h else f"[{m}:{sec:02d}]"
 
 
-def add_timestamps(md: str, transcript: str) -> str:
-    """Résumé avec un marqueur [m:ss] en fin de chaque titre non encore horodaté."""
+def match_chapters(sections: list[dict], chapters: list[dict], threshold: float = 0.2) -> list[float | None]:
+    """Instant de chaque titre d'après les chapitres YouTube ({"seconds", "title"}) dont le
+    titre ressemble le plus (mots communs pondérés par rareté), dans l'ordre (croissant au
+    sens large : deux titres peuvent tomber dans le même chapitre). None si rien ne ressemble."""
+    if not chapters:
+        return [None] * len(sections)
+    heads = [set(tokens(s["title"])) for s in sections]
+    chaps = [set(tokens(c["title"])) for c in chapters]
+    df: dict[str, int] = {}
+    for bag in heads + chaps:
+        for t in bag:
+            df[t] = df.get(t, 0) + 1
+    # Les mots présents dans trois titres ou plus (« السيرة », « النبوية »…) ne distinguent rien.
+    heads = [{t for t in h if df[t] < 3} for h in heads]
+    chaps = [{t for t in c if df[t] < 3} for c in chaps]
+    idf = {t: math.log((len(heads) + len(chaps)) / n) + 0.1 for t, n in df.items()}
+    rows = []
+    for h in heads:
+        total = sum(idf[t] for t in h) or 1.0
+        rows.append([sum(idf[t] for t in h & c) / total if h & c else 0.0 for c in chaps])
+    n, k = len(chaps), len(rows)
+    best = [[0.0] * n for _ in range(k)]
+    back = [[0] * n for _ in range(k)]
+    best[0] = rows[0][:]
+    for i in range(1, k):
+        run_max, run_arg = -1.0, 0
+        for c in range(n):
+            if best[i - 1][c] > run_max:
+                run_max, run_arg = best[i - 1][c], c
+            best[i][c] = rows[i][c] + run_max
+            back[i][c] = run_arg
+    c = max(range(n), key=lambda x: best[k - 1][x])
+    chosen = [0] * k
+    for i in range(k - 1, -1, -1):
+        chosen[i] = c
+        c = back[i][c]
+    return [float(chapters[c]["seconds"]) if rows[i][c] >= threshold else None for i, c in enumerate(chosen)]
+
+
+def add_timestamps(md: str, transcript: str, chapters: list[dict] | None = None) -> str:
+    """Résumé avec un marqueur [m:ss] en fin de chaque titre non encore horodaté.
+    Priorité aux chapitres YouTube (plus précis) ; l'alignement sur la transcription sert
+    aux titres sans chapitre correspondant, borné entre les chapitres voisins."""
     sections = parse_sections(md)
     segments = parse_transcript(transcript)
-    if not sections or not segments:
+    if not sections or not (segments or chapters):
         return md
-    starts = align(sections, segments)
+    starts = align(sections, segments) if segments else [None] * len(sections)
+    if chapters:
+        from_chapters = match_chapters(sections, chapters)
+        for i, t in enumerate(from_chapters):
+            if t is not None:
+                starts[i] = t + 2  # fmt() retire deux secondes : on tombe pile sur le chapitre
+        # titres sans chapitre : temps d'alignement borné par les chapitres voisins
+        for i, t in enumerate(from_chapters):
+            if t is not None or starts[i] is None:
+                continue
+            lo = max((from_chapters[j] for j in range(i) if from_chapters[j] is not None), default=0.0)
+            hi = min((from_chapters[j] for j in range(i + 1, len(sections)) if from_chapters[j] is not None), default=float("inf"))
+            starts[i] = min(max(starts[i], lo), hi)
     # Section sans texte (titre seul au-dessus de sous-titres) : même instant que la suivante.
     for i in range(len(sections) - 1, -1, -1):
         if starts[i] is None and i + 1 < len(sections):

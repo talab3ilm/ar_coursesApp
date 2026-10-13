@@ -17,8 +17,11 @@ Règles :
 - guid d'une carte = colonne guid du TSV si présente, sinon hachage (course_id, question) ;
 - date d'un cours YouTube = date de la leçon plateforme de même matière et numéro (raw/academy/),
   sinon date de la vidéo ;
-- titres du résumé horodatés par tools/align.py quand transcript.md existe (marqueurs
-  déjà présents dans resume-ok.md conservés).
+- chapitres = chapitres YouTube de la vidéo source (yt-dlp, mis en cache dans la table chapters ;
+  --refresh-chapters pour les recharger), sinon titres horodatés du résumé ;
+- titres du résumé horodatés par tools/align.py : chapitre YouTube de titre semblable, sinon
+  alignement sur transcript.md (marqueurs déjà présents dans resume-ok.md conservés) ;
+- tools/overrides.json : par cours, youtube_url affichée et chapters_from (vidéo des chapitres).
 """
 from __future__ import annotations
 
@@ -27,6 +30,8 @@ import hashlib
 import json
 import os
 import re
+import shutil
+import subprocess
 import sys
 import unicodedata
 import urllib.error
@@ -71,6 +76,8 @@ class Course:
     cards: list[dict] = field(default_factory=list)
     chapters: list[dict] = field(default_factory=list)
     mindmap: dict | None = None
+    chapters_from: str | None = None  # vidéo YouTube dont on prend les chapitres
+    raw_summary: str = ""
 
     def row(self) -> dict:
         return {
@@ -151,12 +158,8 @@ def parse_chapters(summary_md: str, course_id: str) -> list[dict]:
 
 
 def read_common(course: Course, folder: Path) -> None:
-    course.summary_md = strip_frontmatter((folder / "resume-ok.md").read_text(encoding="utf-8"))
-    transcript = folder / "transcript.md"
-    if transcript.exists():  # titres horodatés par alignement sur la transcription (voir align.py)
-        course.summary_md = add_timestamps(course.summary_md, transcript.read_text(encoding="utf-8"))
+    course.raw_summary = strip_frontmatter((folder / "resume-ok.md").read_text(encoding="utf-8"))
     course.cards = parse_cards(folder / "anki.tsv", course.id)
-    course.chapters = parse_chapters(course.summary_md, course.id)
     mindmap = folder / "mindmap.json"
     if mindmap.exists():
         course.mindmap = json.loads(mindmap.read_text(encoding="utf-8"))
@@ -306,6 +309,47 @@ def connect(env_file: Path) -> Supabase:
     return Supabase(url, key)
 
 
+# ---------- chapitres YouTube ----------
+
+def load_overrides(path: Path) -> dict:
+    if not path.exists():
+        return {}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return {k: v for k, v in data.items() if not k.startswith("_")}
+
+
+def apply_overrides(course: Course, overrides: dict) -> None:
+    o = overrides.get(course.id, {})
+    if o.get("youtube_url"):
+        course.youtube_url = o["youtube_url"]
+    course.chapters_from = o.get("chapters_from") or (course.id if course.youtube_url else None)
+
+
+def fetch_youtube_chapters(video_id: str, ytdlp: str | None) -> list[dict] | None:
+    """Chapitres de la vidéo via yt-dlp ({"seconds", "title"}), None si indisponible."""
+    if not ytdlp:
+        return None
+    try:
+        out = subprocess.run([ytdlp, "--skip-download", "--dump-single-json", "--no-warnings", video_id],
+                             capture_output=True, text=True, timeout=120, check=True).stdout
+    except (subprocess.SubprocessError, OSError) as e:
+        print(f"  yt-dlp indisponible pour {video_id} : {e}")
+        return None
+    chapters = json.loads(out).get("chapters") or []
+    return [{"seconds": int(c["start_time"]), "title": c["title"].strip()} for c in chapters]
+
+
+def finalize(course: Course, youtube_chapters: list[dict] | None) -> None:
+    """Résumé horodaté et table chapters : chapitres YouTube en priorité, sinon marqueurs des titres."""
+    transcript = course.folder / "transcript.md"
+    transcript_text = transcript.read_text(encoding="utf-8") if transcript.exists() else ""
+    course.summary_md = add_timestamps(course.raw_summary, transcript_text, youtube_chapters)
+    if youtube_chapters:
+        course.chapters = [{"course_id": course.id, **c} for c in youtube_chapters]
+    else:
+        course.chapters = parse_chapters(course.summary_md, course.id)
+
+
 # ---------- publication ----------
 
 def publish(sb: Supabase, course: Course) -> None:
@@ -330,6 +374,10 @@ def main() -> int:
     ap.add_argument("--only", metavar="ID", help="ne traiter que ce cours")
     ap.add_argument("--dry-run", action="store_true", help="lire le vault et afficher le plan, sans réseau")
     ap.add_argument("--ping", action="store_true", help="simple lecture pour garder le projet actif")
+    ap.add_argument("--overrides", type=Path, default=Path(__file__).resolve().parent / "overrides.json")
+    ap.add_argument("--yt-dlp", default=os.environ.get("YTDLP") or shutil.which("yt-dlp"),
+                    help="chemin de yt-dlp pour les chapitres YouTube (défaut : $YTDLP ou le PATH)")
+    ap.add_argument("--refresh-chapters", action="store_true", help="recharger les chapitres YouTube déjà en base")
     args = ap.parse_args()
 
     if args.ping:
@@ -344,11 +392,19 @@ def main() -> int:
     courses = scan_vault(args.vault, skipped)
     if args.only:
         courses = [c for c in courses if c.id == args.only]
+    overrides = load_overrides(args.overrides)
     for c in courses:
+        apply_overrides(c, overrides)
+
+    def describe(c: Course) -> None:
         extra = ", mindmap" if c.mindmap else ""
         print(f"{c.subject_id}/{c.id}  n°{c.number}  « {c.title} »  {len(c.cards)} cartes, "
               f"{len(c.chapters)} chapitres{extra}")
+
     if args.dry_run:
+        for c in courses:
+            finalize(c, None)  # sans réseau : horodatages par alignement seulement
+            describe(c)
         for s in skipped:
             print(f"  ignoré  {s}")
         print(f"{len(courses)} cours publiable(s), {len(skipped)} dossier(s) ignoré(s) — rien envoyé (dry-run)")
@@ -360,6 +416,13 @@ def main() -> int:
         if existing.get(c.id, {}).get("managed_by") == "manual":
             print(f"  conservé (manual) {c.id}")
             continue
+        chapters = None
+        if c.chapters_from:
+            cached = [] if args.refresh_chapters else sb.select(
+                "chapters", f"select=seconds,title&course_id=eq.{urllib.parse.quote(c.id)}&order=seconds")
+            chapters = cached or fetch_youtube_chapters(c.chapters_from, args.yt_dlp)
+        finalize(c, chapters or None)
+        describe(c)
         publish(sb, c)
         print(f"  publié {c.id}")
     if not args.only:
