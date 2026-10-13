@@ -21,7 +21,10 @@ Règles :
   --refresh-chapters pour les recharger), sinon titres horodatés du résumé ;
 - titres du résumé horodatés par tools/align.py : chapitre YouTube de titre semblable, sinon
   alignement sur transcript.md (marqueurs déjà présents dans resume-ok.md conservés) ;
-- tools/overrides.json : par cours, youtube_url affichée et chapters_from (vidéo des chapitres).
+- tools/overrides.json : par cours, youtube_url affichée, chapters_from (vidéo des chapitres),
+  publish: false pour retenir un cours (dépublié s'il l'était) ;
+- tools/chapters/<video_id>.json : cache commité des chapitres YouTube (yt-dlp est souvent
+  bloqué depuis les serveurs de CI) ; rempli par un passage local avec --refresh-chapters.
 """
 from __future__ import annotations
 
@@ -325,8 +328,22 @@ def apply_overrides(course: Course, overrides: dict) -> None:
     course.chapters_from = o.get("chapters_from") or (course.id if course.youtube_url else None)
 
 
+CHAPTERS_DIR = Path(__file__).resolve().parent / "chapters"  # cache commité : <video_id>.json
+
+
+def chapters_file(video_id: str) -> Path:
+    return CHAPTERS_DIR / f"{video_id}.json"
+
+
+def load_chapters_file(video_id: str) -> list[dict] | None:
+    path = chapters_file(video_id)
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+
+
 def fetch_youtube_chapters(video_id: str, ytdlp: str | None) -> list[dict] | None:
-    """Chapitres de la vidéo via yt-dlp ({"seconds", "title"}), None si indisponible."""
+    """Chapitres de la vidéo via yt-dlp ({"seconds", "title"}), None si indisponible.
+    YouTube refuse souvent les serveurs de CI : le résultat est donc aussi écrit dans
+    tools/chapters/<video_id>.json (à commiter), que le CI relit sans réseau."""
     if not ytdlp:
         return None
     try:
@@ -336,7 +353,11 @@ def fetch_youtube_chapters(video_id: str, ytdlp: str | None) -> list[dict] | Non
         print(f"  yt-dlp indisponible pour {video_id} : {e}")
         return None
     chapters = json.loads(out).get("chapters") or []
-    return [{"seconds": int(c["start_time"]), "title": c["title"].strip()} for c in chapters]
+    result = [{"seconds": int(c["start_time"]), "title": c["title"].strip()} for c in chapters]
+    if result:
+        CHAPTERS_DIR.mkdir(exist_ok=True)
+        chapters_file(video_id).write_text(json.dumps(result, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    return result
 
 
 def finalize(course: Course, youtube_chapters: list[dict] | None) -> None:
@@ -416,11 +437,20 @@ def main() -> int:
         if existing.get(c.id, {}).get("managed_by") == "manual":
             print(f"  conservé (manual) {c.id}")
             continue
+        if overrides.get(c.id, {}).get("publish") is False:  # cours retenu volontairement
+            if existing.get(c.id, {}).get("published"):
+                sb.patch("courses", f"id=eq.{urllib.parse.quote(c.id)}", {"published": False, "updated_at": "now()"})
+                print(f"  dépublié (retenu) {c.id}")
+            else:
+                print(f"  retenu {c.id}")
+            continue
         chapters = None
         if c.chapters_from:
-            cached = [] if args.refresh_chapters else sb.select(
-                "chapters", f"select=seconds,title&course_id=eq.{urllib.parse.quote(c.id)}&order=seconds")
-            chapters = cached or fetch_youtube_chapters(c.chapters_from, args.yt_dlp)
+            if args.refresh_chapters:
+                chapters = fetch_youtube_chapters(c.chapters_from, args.yt_dlp) or load_chapters_file(c.chapters_from)
+            else:
+                cached = sb.select("chapters", f"select=seconds,title&course_id=eq.{urllib.parse.quote(c.id)}&order=seconds")
+                chapters = cached or load_chapters_file(c.chapters_from) or fetch_youtube_chapters(c.chapters_from, args.yt_dlp)
         finalize(c, chapters or None)
         describe(c)
         publish(sb, c)

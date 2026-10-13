@@ -220,3 +220,7 @@ traitements longs délégués à des sous-agents en arrière-plan.
   `.github/workflows/notify-courses-app.yml` envoie le signal à chaque push touchant
   `raw/youtube/**` ou `raw/academy/**`, avec le secret `COURSES_APP_DISPATCH_TOKEN`.
   L'URL Supabase est en clair dans l'action (elle l'est déjà dans le bundle du front).
+- Run CI n°2 réussi le 2026-10-13 (sira + tajwid publiés). yt-dlp échoue sur les serveurs
+  GitHub (blocage YouTube) : les chapitres sont donc mis en cache dans `tools/chapters/`
+  (commité), à remplir en local avec `--refresh-chapters` pour tout nouveau cours. Un cours
+  peut être retenu hors ligne avec `"publish": false` dans `tools/overrides.json`.

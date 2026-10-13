@@ -1,5 +1,5 @@
 {
-  "_doc": "Réglages par cours (clé = id du cours) appliqués par publish.py par-dessus meta.md. youtube_url : vidéo affichée à la place de celle de meta.md ; chapters_from : vidéo YouTube dont on prend les chapitres (par défaut la vidéo de meta.md, qui est celle de la transcription).",
+  "_doc": "Réglages par cours (clé = id du cours) appliqués par publish.py par-dessus meta.md. youtube_url : vidéo affichée à la place de celle de meta.md ; chapters_from : vidéo YouTube dont on prend les chapitres (par défaut la vidéo de meta.md, qui est celle de la transcription) ; publish : false pour retenir un cours hors ligne.",
   "Y2iDJNpa7wg": {
     "youtube_url": "https://youtu.be/x_8xVueL8FQ",
     "chapters_from": "Y2iDJNpa7wg"
