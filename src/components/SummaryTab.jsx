@@ -1,7 +1,9 @@
 import { useMemo } from 'react'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import remarkBreaks from 'remark-breaks' // un retour à la ligne simple = <br> (vers, hémistiches)
 import { formatSeconds, parseTimestamp } from '../lib/arabic'
+import { SHOW_TIMESTAMPS } from '../config'
 
 // Marqueur [mm:ss] ou [h:mm:ss] du pipeline -> lien interne #t=<secondes>, rendu en bouton.
 const MARKER = /\[(\d{1,2}:\d{2}(?::\d{2})?)\]/g
@@ -9,7 +11,9 @@ const MARKER = /\[(\d{1,2}:\d{2}(?::\d{2})?)\]/g
 const FRONTMATTER = /^---\s*\n[\s\S]*?\n---[ \t]*\n?/
 
 function withTimestampLinks(md) {
-  return md.replace(FRONTMATTER, '').replace(MARKER, (_, ts) => {
+  const body = md.replace(FRONTMATTER, '')
+  if (!SHOW_TIMESTAMPS) return body.replace(MARKER, '') // marqueurs retirés de l'affichage
+  return body.replace(MARKER, (_, ts) => {
     const s = parseTimestamp(ts)
     return s === null ? _ : `[${ts}](#t=${s})`
   })
@@ -46,7 +50,7 @@ export default function SummaryTab({ markdown, videoId, chapters = [], onSeek })
 
   return (
     <article className="prose summary">
-      {videoId && chapters.length > 0 && (
+      {SHOW_TIMESTAMPS && videoId && chapters.length > 0 && (
         <nav className="toc" aria-label="محتويات الدرس">
           <p className="small muted">انقر على الوقت لمشاهدة المقطع داخل الصفحة.</p>
           <ol>
@@ -61,10 +65,10 @@ export default function SummaryTab({ markdown, videoId, chapters = [], onSeek })
           </ol>
         </nav>
       )}
-      <Markdown remarkPlugins={[remarkGfm]} components={components}>
+      <Markdown remarkPlugins={[remarkGfm, remarkBreaks]} components={components}>
         {source}
       </Markdown>
-      {videoId && (
+      {SHOW_TIMESTAMPS && videoId && (
         <p className="small muted">
           إن لم يعمل العرض داخل الصفحة، افتح{' '}
           <a href={`https://youtu.be/${videoId}`} target="_blank" rel="noreferrer">

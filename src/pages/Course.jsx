@@ -5,13 +5,11 @@ import { youtubeId } from '../lib/arabic'
 import { rememberCourse } from '../lib/progress'
 import { ErrorBox, Loading } from '../components/Loading.jsx'
 import PlayerPanel from '../components/PlayerPanel.jsx'
+import { SHOW_TIMESTAMPS, SHOW_VIDEO_TAB } from '../config'
 import SummaryTab from '../components/SummaryTab.jsx'
 import ReviewTab from '../components/ReviewTab.jsx'
 import MindmapTab from '../components/MindmapTab.jsx'
 
-// L'onglet vidéo est désactivé pour l'instant (demande du 2026-10-13) : la vidéo ne
-// s'affiche qu'à la demande, depuis un horodatage du résumé, dans un panneau repliable.
-const SHOW_VIDEO_TAB = false
 const TABS = [
   ['video', 'الفيديو'],
   ['summary', 'الملخص'],
@@ -58,7 +56,7 @@ export default function Course() {
   const select = (key) => setParams({ tab: key }, { replace: true })
 
   const seek = (seconds) => {
-    if (!videoId) return
+    if (!videoId || !SHOW_TIMESTAMPS) return
     const player = playerRef.current
     if (player?.seekTo) {
       player.seekTo(seconds, true)
