@@ -61,6 +61,10 @@ on conflict (id) do update set name_ar = excluded.name_ar, position = excluded.p
 grant usage on schema public to anon, authenticated;
 grant select on public.subjects, public.courses, public.cards, public.mindmaps, public.chapters
   to anon, authenticated;
+-- Clé secrète (tools/publish.py, tableau de bord) : tous droits, RLS ignoré par ce rôle.
+grant usage on schema public to service_role;
+grant all on public.subjects, public.courses, public.cards, public.mindmaps, public.chapters
+  to service_role;
 
 -- RLS : tout est fermé par défaut, on n'ouvre que la lecture des lignes publiées.
 alter table public.subjects enable row level security;
