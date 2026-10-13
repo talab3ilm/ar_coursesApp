@@ -5,7 +5,7 @@ const QURAN = /([﴿﴾][^﴿﴾]*[﴿﴾]|\{[^{}]*\})/g
 
 /** Texte brut -> tableau de fragments React (chaînes et <span class="quran">). */
 export function withQuran(text) {
-  if (!text || !text.includes('﴿')) return text
+  if (!text || !/[﴿﴾{]/.test(text)) return text
   return text.split(QURAN).map((part, i) =>
     /^[﴿﴾{]/.test(part) ? (
       <span key={i} className="quran" lang="ar">
@@ -23,7 +23,7 @@ export function remarkQuran() {
     if (!node.children) return
     const out = []
     for (const child of node.children) {
-      if (child.type === 'text' && child.value.includes('﴿')) {
+      if (child.type === 'text' && /[﴿﴾{]/.test(child.value)) {
         for (const part of child.value.split(QURAN)) {
           if (!part) continue
           out.push(
