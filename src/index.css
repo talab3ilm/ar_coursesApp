@@ -243,3 +243,14 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .toc ol { margin: 0; padding-inline-start: 0; list-style: none; display: flex; flex-direction: column; gap: 2px; }
 .toc li { display: flex; gap: 8px; align-items: baseline; }
 .prose h2 .ts, .prose h3 .ts { font-size: 0.75rem; font-weight: 500; }
+
+/* Progression : avertissement, page d'export / import */
+.notice-warn { border-color: var(--gold); background: color-mix(in srgb, var(--gold) 10%, var(--surface)); }
+.notice-warn.small p { margin: 0; }
+.stats { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 20px; margin: 12px 0; }
+.import-box { margin-top: 12px; }
+.import-box .seg { margin-top: 4px; }
+.progress-page .btn { margin-top: 4px; }
+
+/* Citations coraniques ﴿…﴾ : police d'apparat, comme les vers */
+.quran { font-family: var(--f-display); font-style: normal; font-size: 1.12em; line-height: 1.9; }

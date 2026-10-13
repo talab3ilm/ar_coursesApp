@@ -11,6 +11,7 @@ export default function Layout() {
           <NavLink to="/" end>
             الرئيسية
           </NavLink>
+          <NavLink to="/progress">التقدّم</NavLink>
           <NavLink to="/about">عن الموقع</NavLink>
         </nav>
       </header>
@@ -18,7 +19,9 @@ export default function Layout() {
         <Outlet />
       </main>
       <footer className="footer">
-        <span>التقدّم محفوظ في هذا المتصفح فقط.</span>
+        <span>
+          التقدّم محفوظ في هذا المتصفح فقط. <Link to="/progress">صدّره</Link>
+        </span>
         <Link to="/about">عن الموقع</Link>
       </footer>
     </div>

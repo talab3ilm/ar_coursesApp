@@ -1,6 +1,9 @@
 import { useMemo, useState, useSyncExternalStore } from 'react'
-import { MAX_BOX, answer, boxCounts, cardState, getSnapshot, isDue, resetCourse, subscribe } from '../lib/progress'
+import { Link } from 'react-router-dom'
+import { MAX_BOX, answer, boxCounts, cardState, getSnapshot, isDue, needsExportReminder, resetCourse, subscribe } from '../lib/progress'
+import { ProgressWarning } from '../pages/Progress.jsx'
 import { shuffle } from '../lib/arabic'
+import { withQuran } from '../lib/quran.jsx'
 
 const BOX_LABELS = ['جديدة', 'صندوق 1', 'صندوق 2', 'صندوق 3', 'صندوق 4', 'محفوظة']
 
@@ -95,6 +98,7 @@ export default function ReviewTab({ cards }) {
         </span>
       </div>
       <Progress cards={cards} />
+      {needsExportReminder() && <ProgressWarning compact />}
 
       {!card ? (
         <div className="notice center">
@@ -115,7 +119,7 @@ export default function ReviewTab({ cards }) {
           <p className="small muted">
             {i + 1} / {queue.length} · {BOX_LABELS[cardState(card.guid).box]}
           </p>
-          <p className="question">{card.question}</p>
+          <p className="question">{withQuran(card.question)}</p>
 
           {mode === 'flip' && !shown && (
             <button className="btn" onClick={() => setShown(true)}>
@@ -124,7 +128,7 @@ export default function ReviewTab({ cards }) {
           )}
           {mode === 'flip' && shown && (
             <>
-              <p className="answer">{card.answer}</p>
+              <p className="answer">{withQuran(card.answer)}</p>
               <div className="row">
                 <button className="btn" onClick={() => grade(true)}>
                   عرفتُها
@@ -144,7 +148,7 @@ export default function ReviewTab({ cards }) {
                   return (
                     <li key={opt}>
                       <button className={`option ${state}`} disabled={choice !== null} onClick={() => setChoice(opt)}>
-                        {opt}
+                        {withQuran(opt)}
                       </button>
                     </li>
                   )
@@ -165,7 +169,7 @@ export default function ReviewTab({ cards }) {
       )}
 
       <p className="small muted">
-        التقدّم يُحفظ في هذا المتصفح فقط.{' '}
+        التقدّم يُحفظ في هذا المتصفح فقط (<Link to="/progress">تصدير / استيراد</Link>).{' '}
         <button
           className="link"
           onClick={() => {

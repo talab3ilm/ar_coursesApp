@@ -204,3 +204,9 @@ traitements longs délégués à des sous-agents en arrière-plan.
   à la demande de l'utilisateur. Les horodatages restent calculés et publiés ; le front
   retire les marqueurs à l'affichage. Les retours à la ligne simples du résumé deviennent
   des `<br>` (remark-breaks) pour les vers écrits un hémistiche par ligne.
+- Étape 4 faite (2026-10-13) : page `/progress` (export JSON téléchargé, import avec
+  « دمج » = boîte la plus haute par carte, ou « استبدال »), bandeau d'avertissement, rappel
+  dans l'onglet révision après 30 réponses sans export ou 20 cartes jamais exportées.
+  Format du fichier : `{app:"ar_coursesApp", version:1, exportedAt, cards:{guid:{box,due,seen}}}`.
+- Citations coraniques ﴿…﴾ rendues en Amiri partout (`src/lib/quran.jsx` : plugin remark
+  pour le résumé, `withQuran()` pour les cartes et la carte mentale).

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { matches } from '../lib/arabic'
+import { withQuran } from '../lib/quran.jsx'
 
 // Libellés et couleurs des tags de `d`, repris de miniApp.html.
 const TAGS = {
@@ -55,9 +56,9 @@ function QuestionCard({ q, a }) {
         <span className="tag" style={{ color: 'var(--accent)' }}>
           سؤال
         </span>{' '}
-        {q}
+        {withQuran(q)}
       </p>
-      {open && <p className="qa">{a}</p>}
+      {open && <p className="qa">{withQuran(a)}</p>}
       <button className="reveal" onClick={() => setOpen(!open)}>
         {open ? 'إخفاء الجواب' : 'إظهار الجواب'}
       </button>
@@ -87,7 +88,7 @@ function Detail({ node, onSelect }) {
                   </span>
                   <SourceChip src={src} />
                 </span>
-                <p className={tag === 'nass' ? 'nass' : ''}>{text}</p>
+                <p className={tag === 'nass' ? 'nass' : ''}>{withQuran(text)}</p>
               </li>
             )
           })}

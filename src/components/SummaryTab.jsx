@@ -4,6 +4,7 @@ import remarkGfm from 'remark-gfm'
 import remarkBreaks from 'remark-breaks' // un retour à la ligne simple = <br> (vers, hémistiches)
 import { formatSeconds, parseTimestamp } from '../lib/arabic'
 import { SHOW_TIMESTAMPS } from '../config'
+import { remarkQuran } from '../lib/quran.jsx'
 
 // Marqueur [mm:ss] ou [h:mm:ss] du pipeline -> lien interne #t=<secondes>, rendu en bouton.
 const MARKER = /\[(\d{1,2}:\d{2}(?::\d{2})?)\]/g
@@ -65,7 +66,7 @@ export default function SummaryTab({ markdown, videoId, chapters = [], onSeek })
           </ol>
         </nav>
       )}
-      <Markdown remarkPlugins={[remarkGfm, remarkBreaks]} components={components}>
+      <Markdown remarkPlugins={[remarkGfm, remarkBreaks, remarkQuran]} components={components}>
         {source}
       </Markdown>
       {SHOW_TIMESTAMPS && videoId && (
