@@ -212,3 +212,11 @@ traitements longs délégués à des sous-agents en arrière-plan.
   `{{…}}` = Coran, affiché ﴿…﴾ ; `{…}` = hadith, affiché «…» ; ﴿…﴾ écrit directement = Coran.
   Tout en Amiri (`src/lib/quran.jsx` : plugin remark pour le résumé, `withQuran()` pour les
   cartes et la carte mentale).
+- Étape 5 (2026-10-13) : `.github/workflows/publish.yml` (repository_dispatch `vault-updated`,
+  lancement manuel avec `only` / `refresh_chapters`, cron quotidien 04:17 UTC qui sert de
+  ping Supabase). Clone le vault `talab3ilm/secondbrain-albaji` avec `VAULT_READ_TOKEN`,
+  installe `yt-dlp`, dry-run puis publication. Secrets GitHub du dépôt :
+  `SUPABASE_SERVICE_ROLE_KEY`, `VAULT_READ_TOKEN`. Côté vault :
+  `.github/workflows/notify-courses-app.yml` envoie le signal à chaque push touchant
+  `raw/youtube/**` ou `raw/academy/**`, avec le secret `COURSES_APP_DISPATCH_TOKEN`.
+  L'URL Supabase est en clair dans l'action (elle l'est déjà dans le bundle du front).

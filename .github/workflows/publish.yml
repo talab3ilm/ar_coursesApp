@@ -1,0 +1,63 @@
+# Alimentation de Supabase depuis le vault (voir CLAUDE.md, « Alimentation depuis le vault »).
+# Déclencheurs : signal envoyé par le vault à chaque push (repository_dispatch), lancement
+# manuel, et cron quotidien qui sert aussi de ping pour éviter la mise en pause de Supabase.
+name: publish
+
+on:
+  repository_dispatch:
+    types: [vault-updated]
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "Identifiant d'un seul cours à publier (vide = tout le vault)"
+        required: false
+        default: ""
+      refresh_chapters:
+        description: "Recharger les chapitres YouTube déjà en base"
+        type: boolean
+        default: false
+  schedule:
+    - cron: "17 4 * * *" # tous les jours à 04:17 UTC
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  SUPABASE_URL: https://woqlmhagpnqysywbmxoc.supabase.co
+  SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Dépôt de l'application
+        uses: actions/checkout@v4
+
+      - name: Vault (lecture seule, jeton dédié)
+        uses: actions/checkout@v4
+        with:
+          repository: talab3ilm/secondbrain-albaji
+          token: ${{ secrets.VAULT_READ_TOKEN }}
+          path: vault
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: yt-dlp (chapitres YouTube)
+        run: pip install --quiet yt-dlp
+
+      - name: Aperçu (dry-run)
+        run: python3 -I tools/publish.py --vault vault --dry-run
+
+      - name: Publication
+        run: >
+          python3 -I tools/publish.py --vault vault
+          ${{ github.event.inputs.only && format('--only {0}', github.event.inputs.only) || '' }}
+          ${{ github.event.inputs.refresh_chapters == 'true' && '--refresh-chapters' || '' }}
