@@ -1,5 +1,7 @@
 # ar_coursesApp — دروس الأكاديمية
 
+Site : <https://coursesapp-lac.vercel.app/>
+
 Vitrine en ligne des cours du second cerveau : pour chaque cours, la vidéo, un résumé
 cliquable (horodatages vers la vidéo), des cartes de révision tirées des decks Anki et une
 carte mentale dépliable. Interface en arabe, lecture de droite à gauche.

@@ -155,3 +155,16 @@ Mêmes règles que `ar_audioToMd/CLAUDE.md` : une session par tâche, passation 
 chaque fin de tâche notable, jamais de gros fichier entier dans le contexte (`miniApp.html`
 fait 48 k caractères : lecture par tranches ou par sous-agent), sorties Bash courtes,
 traitements longs délégués à des sous-agents en arrière-plan.
+
+## État au 2026-10-13 (étape 2)
+
+- `supabase/schema.sql` : schéma complet, RLS lecture publique sur les lignes publiées,
+  bucket `content` public en lecture. À exécuter dans l'éditeur SQL de Supabase.
+- `tools/publish.py` : lecture du vault, `--dry-run` sans réseau, `--only <id>`, `--ping`.
+  Secrets lus dans l'environnement ou `.env.local` (`SUPABASE_SERVICE_ROLE_KEY`).
+  Les `.apkg` ne sont pas téléversés pour l'instant (quota Storage).
+- `fixtures/vault/` : un cours fictif (`fixture01`, matière tajwid) pour tester le script :
+  `python3 -I tools/publish.py --vault fixtures/vault --dry-run`.
+- Cours de la plateforme : `id = academy-<task_id>`, numéro = `lesson`, titre construit.
+- Cours YouTube : `teacher` ignoré quand `speaker` recopie le titre (défaut du pipeline).
+- Site déployé : <https://coursesapp-lac.vercel.app/>.
