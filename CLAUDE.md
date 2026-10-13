@@ -200,3 +200,7 @@ traitements longs délégués à des sous-agents en arrière-plan.
   `tools/overrides.json` permet, par cours, d'afficher une autre vidéo (`youtube_url`) tout
   en gardant les chapitres d'origine (`chapters_from`) : cas de la sira, nouvelle vidéo
   `x_8xVueL8FQ` sans chapitres, horodatages de `Y2iDJNpa7wg`. En CI, installer `yt-dlp`.
+- `src/config.js` : `SHOW_VIDEO_TAB` et `SHOW_TIMESTAMPS`, tous deux à `false` le 2026-10-13
+  à la demande de l'utilisateur. Les horodatages restent calculés et publiés ; le front
+  retire les marqueurs à l'affichage. Les retours à la ligne simples du résumé deviennent
+  des `<br>` (remark-breaks) pour les vers écrits un hémistiche par ligne.
