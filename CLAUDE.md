@@ -186,3 +186,10 @@ traitements longs délégués à des sous-agents en arrière-plan.
 - Date affichée d'un cours YouTube = date de mise à disposition sur la plateforme, prise dans
   `raw/academy/<matière>/<date> الدرس N - …/meta.md` (même matière, même numéro) ; repli
   sur la date de la vidéo. Demande de l'utilisateur du 2026-10-13.
+- 2026-10-13, demande de l'utilisateur : **pas d'onglet vidéo pour l'instant**
+  (`SHOW_VIDEO_TAB = false` dans `src/pages/Course.jsx`). La vidéo s'ouvre à la demande dans
+  un panneau collant (`PlayerPanel.jsx`) quand on clique un horodatage du résumé ou du sommaire.
+- `tools/align.py` : horodatage automatique des titres du résumé par alignement sur
+  `transcript.md` (mots rares, programmation dynamique monotone). Approximatif sur les
+  sous-sections courtes ; un marqueur écrit à la main dans `resume-ok.md` est conservé tel
+  quel. Contrôle : `python3 -I tools/align.py <resume-ok.md> <transcript.md>`.
