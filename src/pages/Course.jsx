@@ -4,11 +4,14 @@ import { fetchCourse } from '../lib/api'
 import { youtubeId } from '../lib/arabic'
 import { rememberCourse } from '../lib/progress'
 import { ErrorBox, Loading } from '../components/Loading.jsx'
-import VideoTab from '../components/VideoTab.jsx'
+import PlayerPanel from '../components/PlayerPanel.jsx'
 import SummaryTab from '../components/SummaryTab.jsx'
 import ReviewTab from '../components/ReviewTab.jsx'
 import MindmapTab from '../components/MindmapTab.jsx'
 
+// L'onglet vidéo est désactivé pour l'instant (demande du 2026-10-13) : la vidéo ne
+// s'affiche qu'à la demande, depuis un horodatage du résumé, dans un panneau repliable.
+const SHOW_VIDEO_TAB = false
 const TABS = [
   ['video', 'الفيديو'],
   ['summary', 'الملخص'],
@@ -20,6 +23,7 @@ export default function Course() {
   const { id } = useParams()
   const [params, setParams] = useSearchParams()
   const [loaded, setLoaded] = useState(null) // { id, course } ou { id, error }
+  const [playing, setPlaying] = useState(null) // secondes du dernier saut demandé, null = lecteur fermé
   const playerRef = useRef(null)
 
   useEffect(() => {
@@ -49,19 +53,19 @@ export default function Course() {
   }
 
   const videoId = youtubeId(course)
-  const tabs = videoId ? TABS : TABS.filter(([k]) => k !== 'video')
+  const tabs = videoId && SHOW_VIDEO_TAB ? TABS : TABS.filter(([k]) => k !== 'video')
   const tab = tabs.some(([k]) => k === params.get('tab')) ? params.get('tab') : tabs[0][0]
   const select = (key) => setParams({ tab: key }, { replace: true })
 
   const seek = (seconds) => {
+    if (!videoId) return
     const player = playerRef.current
     if (player?.seekTo) {
       player.seekTo(seconds, true)
       player.playVideo?.()
-      select('video')
-    } else if (videoId) {
-      window.open(`https://youtu.be/${videoId}?t=${seconds}`, '_blank', 'noopener')
     }
+    setPlaying(seconds) // monte le panneau au premier clic (le lecteur démarre à cet instant)
+    if (SHOW_VIDEO_TAB) select('video')
   }
 
   return (
@@ -95,11 +99,12 @@ export default function Course() {
         ))}
       </div>
 
+      {playing !== null && videoId && (
+        <PlayerPanel videoId={videoId} startAt={playing} playerRef={playerRef} onClose={() => setPlaying(null)} />
+      )}
+
       <section className="panel" role="tabpanel">
-        {videoId && (
-          <VideoTab videoId={videoId} chapters={course.chapters} playerRef={playerRef} hidden={tab !== 'video'} onSeek={seek} />
-        )}
-        {tab === 'summary' && <SummaryTab markdown={course.summary_md} videoId={videoId} onSeek={seek} />}
+        {tab === 'summary' && <SummaryTab markdown={course.summary_md} videoId={videoId} chapters={course.chapters} onSeek={seek} />}
         {tab === 'review' && <ReviewTab courseId={course.id} cards={course.cards} />}
         {tab === 'map' && <MindmapTab tree={course.mindmap} />}
       </section>

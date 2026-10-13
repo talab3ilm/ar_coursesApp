@@ -229,3 +229,17 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .legend { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 12px 0 0; }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* Lecteur à la demande (ouvert depuis un horodatage du résumé) et sommaire */
+.player-panel {
+  position: sticky; top: 8px; z-index: 5; margin: 12px 0;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
+}
+.player-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+.player-panel .video-frame { max-width: 720px; margin-inline: auto; }
+.player-panel p { margin: 6px 0 0; }
+.toc { border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; background: color-mix(in srgb, var(--accent) 4%, var(--surface)); }
+.toc p { margin: 0 0 6px; }
+.toc ol { margin: 0; padding-inline-start: 0; list-style: none; display: flex; flex-direction: column; gap: 2px; }
+.toc li { display: flex; gap: 8px; align-items: baseline; }
+.prose h2 .ts, .prose h3 .ts { font-size: 0.75rem; font-weight: 500; }

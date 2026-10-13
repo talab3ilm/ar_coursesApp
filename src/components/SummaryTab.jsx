@@ -15,7 +15,7 @@ function withTimestampLinks(md) {
   })
 }
 
-export default function SummaryTab({ markdown, videoId, onSeek }) {
+export default function SummaryTab({ markdown, videoId, chapters = [], onSeek }) {
   const source = useMemo(() => withTimestampLinks(markdown ?? ''), [markdown])
 
   const components = {
@@ -46,12 +46,27 @@ export default function SummaryTab({ markdown, videoId, onSeek }) {
 
   return (
     <article className="prose summary">
+      {videoId && chapters.length > 0 && (
+        <nav className="toc" aria-label="محتويات الدرس">
+          <p className="small muted">انقر على الوقت لمشاهدة المقطع داخل الصفحة.</p>
+          <ol>
+            {chapters.map((ch) => (
+              <li key={ch.seconds}>
+                <button className="ts" onClick={() => onSeek(ch.seconds)}>
+                  {formatSeconds(ch.seconds)}
+                </button>
+                <span>{ch.title}</span>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )}
       <Markdown remarkPlugins={[remarkGfm]} components={components}>
         {source}
       </Markdown>
       {videoId && (
         <p className="small muted">
-          إن لم يعمل الانتقال داخل الصفحة، افتح{' '}
+          إن لم يعمل العرض داخل الصفحة، افتح{' '}
           <a href={`https://youtu.be/${videoId}`} target="_blank" rel="noreferrer">
             الفيديو في يوتيوب
           </a>

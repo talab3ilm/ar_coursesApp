@@ -16,7 +16,9 @@ Règles :
 - un cours publié par le pipeline et absent du vault est dépublié, pas supprimé ;
 - guid d'une carte = colonne guid du TSV si présente, sinon hachage (course_id, question) ;
 - date d'un cours YouTube = date de la leçon plateforme de même matière et numéro (raw/academy/),
-  sinon date de la vidéo.
+  sinon date de la vidéo ;
+- titres du résumé horodatés par tools/align.py quand transcript.md existe (marqueurs
+  déjà présents dans resume-ok.md conservés).
 """
 from __future__ import annotations
 
@@ -32,6 +34,9 @@ import urllib.parse
 import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # -I n'ajoute pas le dossier du script
+from align import add_timestamps  # noqa: E402
 
 # Nom de série dans meta.md (youtube : `series`, plateforme : `subject`) -> slug de subjects.id.
 SERIES_TO_SUBJECT = {
@@ -147,6 +152,9 @@ def parse_chapters(summary_md: str, course_id: str) -> list[dict]:
 
 def read_common(course: Course, folder: Path) -> None:
     course.summary_md = strip_frontmatter((folder / "resume-ok.md").read_text(encoding="utf-8"))
+    transcript = folder / "transcript.md"
+    if transcript.exists():  # titres horodatés par alignement sur la transcription (voir align.py)
+        course.summary_md = add_timestamps(course.summary_md, transcript.read_text(encoding="utf-8"))
     course.cards = parse_cards(folder / "anki.tsv", course.id)
     course.chapters = parse_chapters(course.summary_md, course.id)
     mindmap = folder / "mindmap.json"
