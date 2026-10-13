@@ -255,3 +255,22 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 /* Citations : Coran {{…}} affiché ﴿…﴾, hadith {…} affiché «…», police d'apparat comme les vers */
 .quran, .hadith { font-family: var(--f-display); font-style: normal; font-size: 1.12em; line-height: 1.9; }
 .hadith { font-size: 1.08em; }
+
+/* Tableau de bord /admin */
+.login { max-width: 360px; display: flex; flex-direction: column; gap: 12px; }
+.login label, .form-grid label, .file-field { display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; font-weight: 600; }
+.login input, .form-grid input, .form-grid select, .toolbar select {
+  border: 1px solid var(--line); background: var(--surface); color: inherit; border-radius: 6px;
+  padding: 6px 10px; font: inherit; font-weight: 400;
+}
+.admin-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.admin-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.admin-table th, .admin-table td { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: start; vertical-align: top; }
+.admin-table .mono { font-size: 0.75rem; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.form-grid .wide { grid-column: 1 / -1; }
+.file-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 8px; }
+.file-field input { font-weight: 400; }
+.preview { margin-top: 12px; }
+.actions { margin-top: 20px; }
+.btn-danger { background: var(--surface); border-color: var(--ko); color: var(--ko); margin-inline-start: auto; }

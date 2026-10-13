@@ -9,7 +9,7 @@ if (!url || !key) {
 }
 
 export const supabase = createClient(url ?? '', key ?? '', {
-  auth: { persistSession: false },
+  auth: { persistSession: true, autoRefreshToken: true }, // session utile seulement pour /admin
 })
 
 export const storageUrl = (subjectId, courseId, file) =>

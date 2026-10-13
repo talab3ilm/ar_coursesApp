@@ -224,3 +224,11 @@ traitements longs délégués à des sous-agents en arrière-plan.
   GitHub (blocage YouTube) : les chapitres sont donc mis en cache dans `tools/chapters/`
   (commité), à remplir en local avec `--refresh-chapters` pour tout nouveau cours. Un cours
   peut être retenu hors ligne avec `"publish": false` dans `tools/overrides.json`.
+- Étape 6 (2026-10-13) : `/admin` = connexion Supabase Auth (e-mail + mot de passe, utilisateur
+  créé dans le tableau de bord Supabase), liste blanche `public.admins` vérifiée par la fonction
+  `is_admin()` (`supabase/admin.sql`, à exécuter après `schema.sql`). Liste de tous les cours,
+  formulaire (métadonnées, dépôt de resume.md / anki.tsv / mindmap.json, aperçu), publier /
+  dépublier, bascule `manual` / `pipeline`, suppression. Un cours créé à la main naît en
+  `manual` et non publié. Les analyses de fichiers (`src/lib/admin.js`) reproduisent
+  `publish.py` (guid = sha1(id + question normalisée)[:16], frontmatter retiré, chapitres
+  depuis les marqueurs des titres). Pas d'alignement d'horodatages côté admin.

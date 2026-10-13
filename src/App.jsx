@@ -4,6 +4,7 @@ import Home from './pages/Home.jsx'
 import Course from './pages/Course.jsx'
 import About from './pages/About.jsx'
 import Progress from './pages/Progress.jsx'
+import Admin from './pages/Admin.jsx'
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
         <Route path="c/:id" element={<Course />} />
         <Route path="about" element={<About />} />
         <Route path="progress" element={<Progress />} />
+        <Route path="admin" element={<Admin />} />
         <Route path="*" element={<Home />} />
       </Route>
     </Routes>
