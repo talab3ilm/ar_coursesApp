@@ -285,4 +285,8 @@ traitements longs délégués à des sous-agents en arrière-plan.
   dès 601 px (téléphone à l'horizontale compris, colonne 240 à 300 px) et s'ouvre en tiroir fixé au bord
   gauche en dessous (`.detail.sheet`, fermeture ✕ ou fond). Hook `src/lib/useMedia.js` (`useMediaQuery`).
   Contrôle avec Playwright à 390×844 et 844×390 (émulation iPhone 13) : aucun débordement horizontal.
+- 2026-10-14, demande de l'utilisateur : **`SHOW_TIMESTAMPS = true`** (horodatages sur les titres du résumé,
+  sommaire des chapitres, lecteur à la demande). `SHOW_VIDEO_TAB` reste `false`. Sur téléphone, le lecteur
+  collant se place sous la barre d'onglets en portrait et s'ancre en vignette fixe en bas à gauche en paysage,
+  pour lire le résumé pendant la vidéo.
 

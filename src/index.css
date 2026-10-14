@@ -384,7 +384,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
     box-shadow: 8px 0 30px rgba(0, 0, 0, 0.25); overflow-y: auto;
   }
   .sheet-close { position: absolute; top: 8px; right: 10px; min-height: 32px; padding: 0 10px; }
-  .player-panel { top: 0; margin: 8px 0; padding: 8px; }
+  .player-panel { top: 58px; margin: 8px 0; padding: 8px; } /* sous la barre d'onglets collante */
   .ts-editor td, .ts-editor th { padding: 4px; }
   table.admin-table { display: block; overflow-x: auto; }
 }
@@ -400,5 +400,11 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
   .hero, .lead { margin-bottom: 4px; }
   .tabs[role='tablist'] { margin: 4px 0; }
   .detail.sheet { max-height: 85vh; }
-  .player-panel .video-frame { max-width: 60vw; }
+  /* Lecteur ancré en bas à gauche, le résumé reste lisible à côté pendant la lecture */
+  .player-panel {
+    position: fixed; left: 8px; bottom: 8px; top: auto; margin: 0; z-index: 30;
+    width: min(46vw, 420px); padding: 6px 8px; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+  }
+  .player-panel .video-frame { max-width: none; }
+  .player-panel p { display: none; }
 }
