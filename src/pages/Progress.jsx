@@ -58,7 +58,7 @@ export default function Progress() {
   }
 
   const confirmImport = () => {
-    importCards(pending.cards, mode)
+    importCards(pending.cards, mode, pending.known)
     setMessage({ ok: true, text: `تم استيراد ${pending.count} بطاقة (${mode === 'merge' ? 'دمج' : 'استبدال'}).` })
     setPending(null)
   }

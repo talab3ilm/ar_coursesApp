@@ -11,11 +11,11 @@ function load() {
   try {
     const raw = localStorage.getItem(KEY)
     const data = raw ? JSON.parse(raw) : null
-    if (data && data.version === 1 && data.cards) return data
+    if (data && data.version === 1 && data.cards) return { known: {}, ...data }
   } catch {
     /* stockage indisponible ou corrompu : on repart de zéro */
   }
-  return { version: 1, cards: {}, lastCourse: null, lastExport: null, answersSinceExport: 0 }
+  return { version: 1, cards: {}, known: {}, lastCourse: null, lastExport: null, answersSinceExport: 0 }
 }
 
 function save(data) {
@@ -99,7 +99,7 @@ export function needsExportReminder() {
 /** Contenu du fichier d'export (JSON lisible). */
 export function exportJson() {
   return JSON.stringify(
-    { app: 'ar_coursesApp', version: 1, exportedAt: new Date().toISOString(), cards: state.cards, lastCourse: state.lastCourse },
+    { app: 'ar_coursesApp', version: 1, exportedAt: new Date().toISOString(), cards: state.cards, known: state.known ?? {}, lastCourse: state.lastCourse },
     null,
     2,
   )
@@ -126,19 +126,35 @@ export function parseImport(text) {
     if (!c || typeof c.box !== 'number' || typeof c.due !== 'number') continue
     cards[guid] = { box: Math.min(Math.max(Math.round(c.box), 0), MAX_BOX), due: c.due, seen: Number(c.seen) || 0 }
   }
-  return { cards, exportedAt: data.exportedAt ?? null, count: Object.keys(cards).length }
+  const known = Object.fromEntries(Object.entries(data.known ?? {}).filter(([, v]) => v === true))
+  return { cards, known, exportedAt: data.exportedAt ?? null, count: Object.keys(cards).length }
 }
 
 /** Applique un import : 'replace' écrase tout, 'merge' garde pour chaque carte la boîte la plus haute. */
-export function importCards(cards, mode) {
+export function importCards(cards, mode, known = {}) {
   let merged = cards
+  let mergedKnown = known
   if (mode === 'merge') {
+    mergedKnown = { ...(state.known ?? {}), ...known }
     merged = { ...state.cards }
     for (const [guid, c] of Object.entries(cards)) {
       const cur = merged[guid]
       if (!cur || c.box > cur.box || (c.box === cur.box && c.due > cur.due)) merged[guid] = c
     }
   }
-  state = { ...state, cards: merged, lastExport: Date.now(), answersSinceExport: 0 }
+  state = { ...state, cards: merged, known: mergedKnown, lastExport: Date.now(), answersSinceExport: 0 }
+  commit()
+}
+
+/** Questions de la carte mentale marquées « عرفتُها » (clé = cours + chemin du nœud + question). */
+export function isKnown(key) {
+  return state.known?.[key] === true
+}
+
+export function toggleKnown(key) {
+  const known = { ...(state.known ?? {}) }
+  if (known[key]) delete known[key]
+  else known[key] = true
+  state = { ...state, known, answersSinceExport: (state.answersSinceExport ?? 0) + 1 }
   commit()
 }

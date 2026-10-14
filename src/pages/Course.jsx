@@ -104,7 +104,9 @@ export default function Course() {
       <section className="panel" role="tabpanel">
         {tab === 'summary' && <SummaryTab markdown={course.summary_md} videoId={videoId} chapters={course.chapters} onSeek={seek} />}
         {tab === 'review' && <ReviewTab courseId={course.id} cards={course.cards} />}
-        {tab === 'map' && <MindmapTab tree={course.mindmap} />}
+        {tab === 'map' && (
+          <MindmapTab tree={course.mindmap} courseKey={course.id} rootLabel={`الدرس ${course.number ?? ''} · ${course.title}`} />
+        )}
       </section>
     </>
   )
