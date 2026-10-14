@@ -231,7 +231,10 @@ export default function CourseForm({ id, subjects, onDone }) {
           courseId={courseId}
           summary={course.summary_md}
           videoId={youtubeId(fields)}
-          onSaved={async () => setCourse(await loadCourse(courseId))}
+          onSaved={async (text) => {
+            setCourse(await loadCourse(courseId))
+            setStatus({ ok: true, text })
+          }}
         />
       )}
 

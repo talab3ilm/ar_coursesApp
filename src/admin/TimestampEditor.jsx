@@ -29,8 +29,7 @@ export default function TimestampEditor({ courseId, summary, videoId, onSaved })
     setBusy(true)
     try {
       await updateSummary(courseId, compute())
-      setStatus({ ok: true, text: 'تم حفظ الأوقات.' })
-      onSaved?.()
+      onSaved?.('تم حفظ الأوقات.') // le parent recharge le cours (ce composant est remonté) et affiche le message
     } catch (e) {
       setStatus({ ok: false, text: e.message })
     }
