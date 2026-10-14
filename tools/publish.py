@@ -51,9 +51,14 @@ SERIES_TO_SUBJECT = {
     "التجويد": "tajwid", "تجويد القرآن": "tajwid",
     "السيرة النبوية": "sira", "السيرة": "sira",
     "الفقه": "fiqh",
-    "التوحيد والعقيدة": "aqida", "العقيدة": "aqida", "التوحيد": "aqida",
+    "التوحيد والعقيدة": "aqida", "التوحيد و العقيدة": "aqida", "العقيدة": "aqida", "التوحيد": "aqida",
     "النحو": "nahw",
     "الصرف": "sarf",
+}
+# Nom affiché de chaque matière (= subjects.name_ar dans supabase/schema.sql).
+SUBJECT_NAMES = {
+    "sira": "السيرة النبوية", "fiqh": "الفقه", "tajwid": "التجويد",
+    "aqida": "التوحيد والعقيدة", "nahw": "النحو", "sarf": "الصرف",
 }
 # Fichiers relus (convention « -ok ») : resume-ok.md, anki-ok.tsv (repli : anki.tsv), mindmap-ok.json
 # (jamais mindmap.json, brouillon non relu). Dans Storage ils sont renommés resume.md, anki.tsv, mindmap.json.
@@ -80,7 +85,8 @@ MIME = {".md": "text/markdown", ".tsv": "text/tab-separated-values", ".json": "a
 FRONTMATTER = re.compile(r"\A---\s*\n.*?\n---[ \t]*\n?", re.DOTALL)
 TASHKEEL = re.compile(r"[ؐ-ًؚ-ٰٟۖ-ۭـ]")
 TIMESTAMP_HEADING = re.compile(r"^#{1,6}\s+(.*?)\s*\[(\d{1,2}):(\d{2})(?::(\d{2}))?\]\s*$")
-TRAILING_NUMBER = re.compile(r"(?:\bEp\.?|[-–]|الدرس|الحلقة)\s*0*(\d{1,3})\s*$", re.IGNORECASE)
+# Numéro de leçon en fin de titre : « Ep 01 », « - 01 », « الدرس 3 », ou simplement « … 01 ».
+TRAILING_NUMBER = re.compile(r"(?:\bEp\.?|[-–]|الدرس|الحلقة)?\s*0*(\d{1,3})\s*$", re.IGNORECASE)
 
 
 @dataclass
@@ -206,7 +212,8 @@ def youtube_course(folder: Path, meta: dict, skipped: list[str]) -> Course | Non
     course.number = int(m.group(1)) if m else None
     # Titre affiché : « matière - السنة الأولى - NN », jamais le titre YouTube brut (noms d'enseignants,
     # « Ep »…). Le titre brut reste dans meta.md pour la traçabilité et le numéro de leçon.
-    course.title = f"{series} - السنة الأولى - {course.number:02d}" if course.number else series
+    name = SUBJECT_NAMES[subject]
+    course.title = f"{name} - السنة الأولى - {course.number:02d}" if course.number else name
     read_common(course, folder)
     if course.mindmap is not None:
         course.mindmap["t"] = course.title  # la racine de la carte reprend le titre YouTube brut
