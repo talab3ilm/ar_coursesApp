@@ -155,6 +155,8 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .prose td, .prose th { border: 1px solid var(--line); padding: 4px 10px; }
 
 /* Révision */
+.review-intro { margin-bottom: 12px; }
+.review-intro p { margin: 0 0 4px; }
 .progress .bar { display: flex; height: 8px; border-radius: 999px; overflow: hidden; background: var(--line); margin: 4px 0; }
 .progress .seg { display: block; border: 0; }
 .progress .b0 { background: var(--line); }

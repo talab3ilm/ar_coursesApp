@@ -84,6 +84,11 @@ export default function ReviewTab({ cards }) {
 
   return (
     <div className="review">
+      <header className="review-intro">
+        <h2>المراجعة</h2>
+        <p>حاول الإجابة قبل إظهار الجواب. الأسئلة مأخوذة من الدرس، وأجوبتها من نصه أو من خريطة الأكاديمية.</p>
+        <p className="small muted">علامة «عرفتُها» تُحفظ في هذا المتصفح فقط.</p>
+      </header>
       <div className="toolbar">
         <div className="seg" role="group" aria-label="نوع المراجعة">
           <button aria-pressed={mode === 'flip'} onClick={() => setMode('flip')}>
