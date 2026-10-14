@@ -86,6 +86,7 @@ export default function CourseForm({ id, subjects, onDone }) {
       }
       setStatus({ ok: true, text: 'تم الحفظ.' })
       setFiles({})
+      setPreview(null) // l'aperçu de la carte dépend du fichier déposé
       setCourse(await loadCourse(courseId))
     } catch (err) {
       setStatus({ ok: false, text: `فشل الحفظ : ${err.message}` })
@@ -217,7 +218,7 @@ export default function CourseForm({ id, subjects, onDone }) {
           <SummaryTab markdown={files.resume?.text ?? course?.summary_md} videoId={youtubeId(fields)} onSeek={() => {}} />
         </div>
       )}
-      {preview === 'mindmap' && (
+      {preview === 'mindmap' && files.mindmap && (
         <div className="panel preview">
           <MindmapTab tree={files.mindmap.tree} />
         </div>
