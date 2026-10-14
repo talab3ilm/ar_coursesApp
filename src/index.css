@@ -300,3 +300,17 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .ts-editor .admin-table td { padding: 4px 8px; }
 .ts-cell input { width: 90px; border: 1px solid var(--line); background: var(--surface); color: inherit; border-radius: 6px; padding: 3px 8px; font: inherit; }
 .ts-cell input.invalid { border-color: var(--ko); }
+
+/* Résumé en accordéons (sections de niveau 2) */
+.summary .toolbar { margin-bottom: 8px; }
+.acc { border-bottom: 1px solid var(--line); }
+.acc-head { display: flex; align-items: center; gap: 10px; margin: 0; padding: 10px 0; border: 0; }
+.acc-toggle {
+  flex: 1; display: flex; align-items: center; gap: 10px; text-align: start;
+  border: 0; background: none; padding: 0; font: inherit; color: inherit; cursor: pointer;
+}
+.acc-toggle:hover { color: var(--accent); }
+.chev { color: var(--accent); font-size: 0.9em; width: 1em; text-align: center; }
+.acc-body { padding: 4px 0 12px; }
+.acc-body h3 { margin-top: 14px; }
+.prose .acc-head { font-size: 1.45rem; margin-top: 0; padding-bottom: 10px; }

@@ -264,3 +264,6 @@ traitements longs délégués à des sous-agents en arrière-plan.
   les éléments de la carte mentale : 1.2rem, interligne 2.15, `word-spacing: 0.12em`.
   Jamais de `letter-spacing` en arabe (casse les liaisons). Titres toujours en Amiri,
   interface en IBM Plex Sans Arabic.
+- Résumé en accordéons (2026-10-14) : chaque titre de niveau 2 ouvre ou ferme sa section
+  (fermées au chargement, introduction sans titre toujours visible), boutons « فتح الكل » /
+  « طي الكل » et compteur. Les titres de niveau 3 restent dans leur section.
