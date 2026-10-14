@@ -1,7 +1,12 @@
+import { useEffect } from 'react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import ErrorBoundary from './ErrorBoundary.jsx'
+import { loadTypography } from '../lib/settings'
 
 export default function Layout() {
+  useEffect(() => {
+    loadTypography().catch(() => {}) // sans réglage en base, les valeurs par défaut du CSS restent
+  }, [])
   return (
     <div className="app">
       <header className="topbar">

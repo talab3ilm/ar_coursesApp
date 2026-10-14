@@ -267,3 +267,13 @@ traitements longs délégués à des sous-agents en arrière-plan.
 - Résumé en accordéons (2026-10-14) : chaque titre de niveau 2 ouvre ou ferme sa section
   (fermées au chargement, introduction sans titre toujours visible), boutons « فتح الكل » /
   « طي الكل » et compteur. Les titres de niveau 3 restent dans leur section.
+- Typographie réglable (2026-10-14, demande de l'utilisateur) : table `public.settings` (`supabase/settings.sql`,
+  à exécuter après `admin.sql` ; lecture publique, écriture admins), clé `typography` =
+  `{read, display, body, readSize, readLineHeight, wordSpacing}`. `src/lib/settings.js` : liste `FONTS`
+  (Google Fonts chargées à la demande), `loadTypography()` appelé par `Layout` (cache localStorage puis base),
+  `applyTypography()` pose `--f-read`, `--f-display`, `--f-body`, `--read-size`, `--read-lh`, `--read-ws`
+  sur `:root`. Panneau « الإعدادات · الخطوط » en tête de `/admin` (`src/admin/TypographySettings.jsx`), aperçu
+  en direct, « حفظ », « الافتراضي ». Sans ligne en base, les valeurs par défaut du CSS s'appliquent.
+- Résumé : les titres de niveau 3 sont des accordéons imbriqués dans ceux de niveau 2 (`splitAt` dans
+  `SummaryTab.jsx`) ; le texte d'une section placé avant son premier `###` reste visible quand elle est ouverte.
+

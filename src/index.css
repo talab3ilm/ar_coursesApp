@@ -22,6 +22,9 @@
   --f-display: 'Amiri', 'Traditional Arabic', serif;
   --f-body: 'IBM Plex Sans Arabic', 'Segoe UI', 'Tahoma', sans-serif;
   --f-read: 'Noto Naskh Arabic', 'Amiri', 'Traditional Arabic', serif; /* longs textes : résumé, cartes */
+  --read-size: 1.2rem; /* ces trois valeurs et les polices sont modifiables depuis /admin (table settings) */
+  --read-lh: 2.15;
+  --read-ws: 0.12em;
   color-scheme: light dark;
 }
 @media (prefers-color-scheme: dark) {
@@ -151,7 +154,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .prose h2 { font-size: 1.45rem; margin-top: 28px; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
 .prose h3 { margin-top: 16px; }
 /* Texte de lecture : police naskh, corps plus grand, interlignage ample, mots espacés (jamais les lettres) */
-.prose p, .prose li, .prose td, .prose th { font-family: var(--f-read); font-size: 1.2rem; line-height: 2.15; word-spacing: 0.12em; }
+.prose p, .prose li, .prose td, .prose th { font-family: var(--f-read); font-size: var(--read-size); line-height: var(--read-lh); word-spacing: var(--read-ws); }
 .prose p { margin: 0 0 1.1em; }
 .prose li { margin-bottom: 0.3em; }
 .prose blockquote { font-family: var(--f-display); font-size: 1.25rem; line-height: 2; border-inline-start: 3px solid var(--gold); margin: 14px 0; padding: 4px 14px; }
@@ -175,13 +178,13 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
   border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; margin: 12px 0;
   background: color-mix(in srgb, var(--accent) 4%, var(--surface));
 }
-.flashcard .question { font-family: var(--f-read); font-size: 1.3rem; line-height: 2; font-weight: 700; margin: 6px 0 14px; word-spacing: 0.1em; }
-.flashcard .answer { font-family: var(--f-read); font-size: 1.25rem; line-height: 2.1; word-spacing: 0.1em; border-top: 1px dashed var(--line); padding-top: 10px; margin: 0; }
+.flashcard .question { font-family: var(--f-read); font-size: calc(var(--read-size) * 1.08); line-height: var(--read-lh); font-weight: 700; margin: 6px 0 14px; word-spacing: var(--read-ws); }
+.flashcard .answer { font-family: var(--f-read); font-size: var(--read-size); line-height: var(--read-lh); word-spacing: var(--read-ws); border-top: 1px dashed var(--line); padding-top: 10px; margin: 0; }
 .flashcard .tags { margin: 12px 0 0; }
 .options { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
 .option {
   width: 100%; text-align: start; border: 1px solid var(--line); background: var(--surface);
-  border-radius: 8px; padding: 8px 12px; line-height: 2; font-family: var(--f-read); font-size: 1.1rem; word-spacing: 0.1em;
+  border-radius: 8px; padding: 8px 12px; line-height: var(--read-lh); font-family: var(--f-read); font-size: calc(var(--read-size) * 0.92); word-spacing: var(--read-ws);
 }
 .option:hover:not(:disabled) { border-color: var(--accent); }
 .option.correct { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 12%, var(--surface)); }
@@ -228,7 +231,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .node.hit { background: var(--hit); color: var(--ink); opacity: 1; }
 .items { list-style: none; padding: 0; margin: 0; }
 .items li { border-top: 1px solid var(--line); padding: 8px 0; display: flex; flex-direction: column; gap: 3px; }
-.items p { margin: 0; font-family: var(--f-read); font-size: 1.1rem; line-height: 2; word-spacing: 0.1em; }
+.items p { margin: 0; font-family: var(--f-read); font-size: calc(var(--read-size) * 0.92); line-height: var(--read-lh); word-spacing: var(--read-ws); }
 .items .h { display: flex; gap: 6px; align-items: center; }
 .tag { font-size: 0.72rem; font-weight: 700; padding: 0 7px; border-radius: 4px; border: 1px solid currentColor; }
 .src { font-size: 0.72rem; color: var(--muted); border: 1px dashed var(--line); border-radius: 4px; padding: 0 6px; }
@@ -239,7 +242,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
   margin-top: 14px; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px;
   background: color-mix(in srgb, var(--accent) 5%, var(--surface));
 }
-.qcard p { margin: 0; font-family: var(--f-read); font-size: 1.1rem; line-height: 2; word-spacing: 0.1em; }
+.qcard p { margin: 0; font-family: var(--f-read); font-size: calc(var(--read-size) * 0.92); line-height: var(--read-lh); word-spacing: var(--read-ws); }
 .qq { font-weight: 600; }
 .qa { margin-top: 6px !important; }
 .reveal { padding: 1px 10px; font-size: 0.8rem; margin-top: 6px; }
@@ -313,4 +316,13 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .chev { color: var(--accent); font-size: 0.9em; width: 1em; text-align: center; }
 .acc-body { padding: 4px 0 12px; }
 .acc-body h3 { margin-top: 14px; }
+.acc.sub { border-bottom: 0; border-top: 1px dashed var(--line); margin-inline-start: 14px; }
+.acc.sub .acc-head { padding: 6px 0; }
+.acc.sub .acc-body { padding: 0 0 8px; }
 .prose .acc-head { font-size: 1.45rem; margin-top: 0; padding-bottom: 10px; }
+
+/* Réglages (/admin) */
+.settings { border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; margin-bottom: 14px; }
+.settings summary { cursor: pointer; font-weight: 600; }
+.settings .form-grid { margin-top: 12px; }
+.settings .sample { border-top: 1px dashed var(--line); padding-top: 10px; margin: 0; }

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { listAllCourses, listSubjects } from '../lib/admin'
 import { ErrorBox, Loading } from '../components/Loading.jsx'
 import CourseForm from './CourseForm.jsx'
+import TypographySettings from './TypographySettings.jsx'
 
 /** Liste de tous les cours (publiés ou non) et accès au formulaire. */
 export default function Dashboard({ email, onSignOut }) {
@@ -53,6 +54,7 @@ export default function Dashboard({ email, onSignOut }) {
           </button>
         </span>
       </header>
+      <TypographySettings />
       <div className="toolbar">
         <button className="btn" onClick={() => setEditing('new')}>
           + درس جديد

@@ -19,14 +19,15 @@ function withTimestampLinks(md) {
   })
 }
 
-/** Découpe le résumé en sections de niveau 2 (accordéons) ; la première, sans titre, est l'introduction. */
-function splitSections(md) {
-  const sections = []
+/** Découpe un texte aux titres du niveau donné ; la première part, sans titre, précède le premier titre. */
+function splitAt(md, level) {
+  const re = new RegExp(`^${'#'.repeat(level)}\\s+(.*?)\\s*$`)
+  const parts = []
   let current = { title: null, seconds: null, body: [] }
   for (const line of md.split('\n')) {
-    const m = /^##\s+(.*?)\s*$/.exec(line)
+    const m = re.exec(line)
     if (m) {
-      sections.push(current)
+      parts.push(current)
       const ts = MARKER.exec(m[1])
       MARKER.lastIndex = 0
       current = { title: m[1].replace(MARKER, '').trim(), seconds: ts ? parseTimestamp(ts[1]) : null, body: [] }
@@ -34,8 +35,21 @@ function splitSections(md) {
       current.body.push(line)
     }
   }
-  sections.push(current)
-  return sections.filter((s) => s.title !== null || s.body.join('').trim()).map((s) => ({ ...s, body: s.body.join('\n') }))
+  parts.push(current)
+  return parts.filter((s) => s.title !== null || s.body.join('').trim()).map((s) => ({ ...s, body: s.body.join('\n') }))
+}
+
+/**
+ * Sections de niveau 2 (accordéons), chacune découpée en sous-sections de niveau 3 (accordéons imbriqués).
+ * La première section, sans titre, est l'introduction ; dans une section, le texte avant le premier ### reste visible.
+ */
+function splitSections(md) {
+  return splitAt(md, 2).map((s) => {
+    if (s.title === null) return { ...s, subs: [] }
+    const [first, ...rest] = splitAt(s.body, 3)
+    if (first && first.title === null) return { ...s, body: first.body, subs: rest }
+    return { ...s, body: '', subs: first ? [first, ...rest] : [] }
+  })
 }
 
 export default function SummaryTab({ markdown, videoId, chapters = [], onSeek }) {
@@ -66,11 +80,13 @@ export default function SummaryTab({ markdown, videoId, chapters = [], onSeek })
 
   if (!markdown) return <p className="muted">لا يوجد ملخّص لهذا الدرس بعد.</p>
 
+  // Clés d'ouverture : "i" pour une section, "i/j" pour une sous-section.
   const titled = sections.map((s, i) => [s, i]).filter(([s]) => s.title !== null)
-  const toggle = (i) => {
+  const allKeys = titled.flatMap(([s, i]) => [String(i), ...s.subs.map((_, j) => `${i}/${j}`)])
+  const toggle = (k) => {
     const next = new Set(open)
-    if (next.has(i)) next.delete(i)
-    else next.add(i)
+    if (next.has(k)) next.delete(k)
+    else next.add(k)
     setOpen(next)
   }
   const render = (md) => (
@@ -78,18 +94,34 @@ export default function SummaryTab({ markdown, videoId, chapters = [], onSeek })
       {withTimestampLinks(md)}
     </Markdown>
   )
+  const seek = (seconds) =>
+    SHOW_TIMESTAMPS && videoId && seconds !== null ? (
+      <button type="button" className="ts" onClick={() => onSeek(seconds)}>
+        ⏱ {formatSeconds(seconds)}
+      </button>
+    ) : null
+  const head = (Tag, k, s) => (
+    <Tag className="acc-head">
+      <button type="button" className="acc-toggle" aria-expanded={open.has(k)} onClick={() => toggle(k)}>
+        <span className="chev" aria-hidden="true">{open.has(k) ? '▾' : '◂'}</span>
+        {s.title}
+      </button>
+      {seek(s.seconds)}
+    </Tag>
+  )
+  const openCount = titled.filter(([, i]) => open.has(String(i))).length
 
   return (
     <article className="prose summary">
       {titled.length > 0 && (
         <div className="toolbar">
-          <button className="tbtn" onClick={() => setOpen(new Set(titled.map(([, i]) => i)))}>
+          <button className="tbtn" onClick={() => setOpen(new Set(allKeys))}>
             فتح الكل
           </button>
           <button className="tbtn" onClick={() => setOpen(new Set())}>
             طي الكل
           </button>
-          <span className="small muted">{open.size} / {titled.length} مفتوح</span>
+          <span className="small muted">{openCount} / {titled.length} مفتوح</span>
         </div>
       )}
       {SHOW_TIMESTAMPS && videoId && chapters.length > 0 && (
@@ -113,19 +145,22 @@ export default function SummaryTab({ markdown, videoId, chapters = [], onSeek })
             {render(s.body)}
           </div>
         ) : (
-          <section key={i} className={`acc ${open.has(i) ? 'open' : ''}`}>
-            <h2 className="acc-head">
-              <button type="button" className="acc-toggle" aria-expanded={open.has(i)} onClick={() => toggle(i)}>
-                <span className="chev" aria-hidden="true">{open.has(i) ? '▾' : '◂'}</span>
-                {s.title}
-              </button>
-              {SHOW_TIMESTAMPS && videoId && s.seconds !== null && (
-                <button type="button" className="ts" onClick={() => onSeek(s.seconds)}>
-                  ⏱ {formatSeconds(s.seconds)}
-                </button>
-              )}
-            </h2>
-            {open.has(i) && <div className="acc-body">{render(s.body)}</div>}
+          <section key={i} className={`acc ${open.has(String(i)) ? 'open' : ''}`}>
+            {head('h2', String(i), s)}
+            {open.has(String(i)) && (
+              <div className="acc-body">
+                {s.body.trim() && render(s.body)}
+                {s.subs.map((sub, j) => {
+                  const k = `${i}/${j}`
+                  return (
+                    <section key={k} className={`acc sub ${open.has(k) ? 'open' : ''}`}>
+                      {head('h3', k, sub)}
+                      {open.has(k) && <div className="acc-body">{render(sub.body)}</div>}
+                    </section>
+                  )
+                })}
+              </div>
+            )}
           </section>
         ),
       )}
