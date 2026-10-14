@@ -1,6 +1,5 @@
-import { useMemo, useState, useSyncExternalStore } from 'react'
+import { useMemo, useState } from 'react'
 import { matches } from '../lib/arabic'
-import { getSnapshot, isKnown, subscribe, toggleKnown } from '../lib/progress'
 import { withQuran } from '../lib/quran.jsx'
 
 // Libellés et couleurs des tags de `d`, repris de miniApp.html.
@@ -53,51 +52,6 @@ function Legend() {
       <span className="src">ص 4 = صفحة ملف الدرس</span>
       <span className="src map">الخريطة = خريطة الأكاديمية</span>
       <span className="src add">إضافة = ليست في الدرس</span>
-    </div>
-  )
-}
-
-/** Vue « المراجعة » de miniApp : toutes les questions de l'arbre, avec « عرفتُها » mémorisé. */
-function ReviewView({ nodes, courseKey }) {
-  useSyncExternalStore(subscribe, getSnapshot)
-  const [shown, setShown] = useState(() => new Set())
-  const questions = nodes.flatMap((n) => n.q.map(([q, a], i) => ({ q, a, node: n, key: `${courseKey}|${n.id}|${q}`, idx: `${n.id}#${i}` })))
-  const knownCount = questions.filter((x) => isKnown(x.key)).length
-  if (questions.length === 0) return <p className="muted">لا أسئلة في هذه الخريطة.</p>
-  return (
-    <div className="revlist">
-      <p className="revhead small muted">
-        <span>{questions.length} سؤالا من الدرس</span>
-        <span>
-          عرفتُ: {knownCount} / {questions.length}
-        </span>
-      </p>
-      {questions.map((x) => {
-        const open = shown.has(x.idx)
-        return (
-          <div className="qcard" key={x.idx}>
-            <div className="qtop">
-              <span className="from small muted">{x.node.path.slice(1).concat(x.node.t).join(SEP)}</span>
-              <button className="known" aria-pressed={isKnown(x.key)} onClick={() => toggleKnown(x.key)}>
-                عرفتُها
-              </button>
-            </div>
-            <p className="qq">{withQuran(x.q)}</p>
-            {open && <p className="qa">{withQuran(x.a)}</p>}
-            <button
-              className="reveal"
-              onClick={() => {
-                const next = new Set(shown)
-                if (open) next.delete(x.idx)
-                else next.add(x.idx)
-                setShown(next)
-              }}
-            >
-              {open ? 'إخفاء الجواب' : 'إظهار الجواب'}
-            </button>
-          </div>
-        )
-      })}
     </div>
   )
 }
@@ -172,7 +126,7 @@ function Detail({ node, onSelect, rootLabel }) {
   )
 }
 
-export default function MindmapTab({ tree, courseKey = '', rootLabel = '' }) {
+export default function MindmapTab({ tree, rootLabel = '' }) {
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState(null)
   const [openedAll, setOpenedAll] = useState(false)
@@ -214,10 +168,8 @@ export default function MindmapTab({ tree, courseKey = '', rootLabel = '' }) {
   const openAll = () => {
     setOverrides(new Map())
     setOpenedAll(true)
-    if (view === 'review') setView('map')
   }
   const closeAll = () => {
-    if (view === 'review') setView('map')
     setOpenedAll(false)
     setOverrides(new Map(nodes.filter((n) => n.depth >= 1 && n.kids.length).map((n) => [n.id, false])))
   }
@@ -252,16 +204,12 @@ export default function MindmapTab({ tree, courseKey = '', rootLabel = '' }) {
           <button aria-pressed={view === 'list'} onClick={() => setView('list')}>
             القائمة
           </button>
-          <button aria-pressed={view === 'review'} onClick={() => setView('review')}>
-            المراجعة
-          </button>
         </div>
         <input
           type="search"
           value={query}
           onChange={(e) => {
             setQuery(e.target.value)
-            if (view === 'review') setView('map')
           }}
           placeholder="ابحث عن مفهوم أو سؤال…"
           aria-label="بحث"
@@ -280,22 +228,10 @@ export default function MindmapTab({ tree, courseKey = '', rootLabel = '' }) {
       </div>
       <Legend />
       <div className="work">
-        <section className="canvas" aria-label={view === 'review' ? 'المراجعة' : 'الخريطة الذهنية'}>
-          {view === 'review' ? (
-            <ReviewView nodes={nodes} courseKey={courseKey} />
-          ) : (
-            <ul className={`tree ${view} ${hits ? 'searching' : ''}`}>{renderNode(root)}</ul>
-          )}
+        <section className="canvas" aria-label="الخريطة الذهنية">
+          <ul className={`tree ${view} ${hits ? 'searching' : ''}`}>{renderNode(root)}</ul>
         </section>
-        {view === 'review' ? (
-          <aside className="detail">
-            <h2>المراجعة</h2>
-            <p>حاول الإجابة قبل إظهار الجواب. الأسئلة مأخوذة من الدرس، وأجوبتها من نصه أو من خريطة الأكاديمية.</p>
-            <p className="small muted">علامة «عرفتُها» تُحفظ في هذا المتصفح فقط (تُصدَّر مع التقدّم).</p>
-          </aside>
-        ) : (
-          <Detail node={current} onSelect={setSelected} rootLabel={rootLabel} />
-        )}
+        <Detail node={current} onSelect={setSelected} rootLabel={rootLabel} />
       </div>
     </div>
   )
