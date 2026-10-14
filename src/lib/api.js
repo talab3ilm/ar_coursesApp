@@ -1,7 +1,9 @@
 // Accès aux données publiées. Chaque fonction renvoie des objets simples, prêts pour l'affichage.
 import { supabase } from './supabase'
+import { WANT_VIDEO } from '../config'
 
-const COURSE_FIELDS = 'id, subject_id, number, title, teacher, date, duration, youtube_url'
+// Sans vidéo, l'URL YouTube et les chapitres ne sont ni lus ni accessibles à anon (hide_video.sql).
+const COURSE_FIELDS = 'id, subject_id, number, title, teacher, date, duration' + (WANT_VIDEO ? ', youtube_url' : '')
 
 async function run(query) {
   const { data, error } = await query
@@ -26,7 +28,7 @@ export async function fetchCourse(id) {
   if (!course) return null
   const [cards, chapters, mindmap] = await Promise.all([
     run(supabase.from('cards').select('guid, question, answer, tags, position').eq('course_id', id).order('position')),
-    run(supabase.from('chapters').select('seconds, title').eq('course_id', id).order('seconds')),
+    WANT_VIDEO ? run(supabase.from('chapters').select('seconds, title').eq('course_id', id).order('seconds')) : Promise.resolve([]),
     run(supabase.from('mindmaps').select('tree').eq('course_id', id).maybeSingle()),
   ])
   return { ...course, subject_name: course.subjects?.name_ar ?? '', cards, chapters, mindmap: mindmap?.tree ?? null }

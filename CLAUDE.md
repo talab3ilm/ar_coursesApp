@@ -289,4 +289,14 @@ traitements longs délégués à des sous-agents en arrière-plan.
   sommaire des chapitres, lecteur à la demande). `SHOW_VIDEO_TAB` reste `false`. Sur téléphone, le lecteur
   collant se place sous la barre d'onglets en portrait et s'ancre en vignette fixe en bas à gauche en paysage,
   pour lire le résumé pendant la vidéo.
+- **Vidéos retirées (2026-10-14)**, après vérification demandée par l'utilisateur : les trois vidéos sont
+  *non répertoriées* sur la chaîne YouTube de l'académie, et le règlement intérieur
+  (<https://albajiacademy.com/rules/>, art. 36-11 « عدم نشر تسجيلات الدروس أو تفريغاتها أو المواد التعليمية
+  خارج المنصة دون إذن », 36-13 partage interdit, 41-2 copie et rediffusion soumises à autorisation) interdit
+  leur diffusion hors plateforme. `SHOW_TIMESTAMPS` et `SHOW_VIDEO_TAB` à `false`, `WANT_VIDEO` dans
+  `src/config.js` : le front ne lit plus `youtube_url` ni `chapters`. `supabase/hide_video.sql` (à exécuter)
+  retire à `anon` la colonne `youtube_url` et la table `chapters` ; admins et `service_role` gardent tout.
+  Le site ne garde que résumés, cartes et cartes mentales produits par les étudiants. Zones grises
+  signalées à l'utilisateur : résumés dérivés des enregistrements, nœuds de la carte mentale sourcés
+  « خ » (carte de l'académie), références « ص N » au fichier du cours, nom « الأكاديمية » dans le titre du site.
 
