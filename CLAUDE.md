@@ -237,3 +237,13 @@ traitements longs délégués à des sous-agents en arrière-plan.
   fichiers, aperçu, sauvegarde, publication, dépublication, suppression. `admin.sql` donne
   aussi `grant all on admins to service_role`. Une barrière d'erreur globale
   (`ErrorBoundary.jsx`) remplace la page blanche en cas d'exception de rendu.
+- Étape 7 faite le 2026-10-14 dans `ar_audioToMd` : `make_cards.py` écrit une 4e colonne
+  `guid` (sha1(id du cours + question sans tashkeel)[:16], identique au repli de
+  `publish.py`), `make_anki.py` l'utilise comme guid de note Anki ; `draft_lesson.py
+  --mode mindmap` produit `mindmap.json` (schéma validé, profondeur ≤ 4) et `mindmap.md`
+  (bloc Mermaid pour Obsidian) à partir de `resume-ok.md` ; `pull_sources.py` laisse `speaker`
+  vide quand le titre n'a pas de « | ». Essai sur la sira : 11 nœuds, 20 questions, 48 s.
+- Carte mentale de la sira (2026-10-14) : celle d'Abdelali, extraite de `docs/miniApp.html`
+  (48 nœuds, 23 questions), chargée dans Supabase à la main ; copie dans
+  `ar_audioToMd/temp/mindmap-Y2iDJNpa7wg.json` à déposer dans le dossier du cours du vault.
+  Tant que le vault n'a pas de `mindmap.json`, `publish.py` ne touche pas à la table `mindmaps`.
