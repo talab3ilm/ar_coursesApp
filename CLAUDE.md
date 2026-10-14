@@ -304,4 +304,7 @@ traitements longs délégués à des sous-agents en arrière-plan.
   page « عن الموقع » et pied de page affirment : travail d'étudiants indépendant, ne représente pas
   l'académie, ne publie ni enregistrements ni supports, retrait sur demande via les issues GitHub.
   `hide_video.sql` exécuté par l'utilisateur ; vérifié : `anon` reçoit 42501 sur `youtube_url` et `chapters`.
+- Métadonnées de partage (2026-10-14) : description, balises Open Graph et Twitter dans `index.html`,
+  image `public/og.png` (1200×630, rendue avec Playwright depuis un HTML du scratchpad). Les messageries
+  (Telegram, WhatsApp) gardent l'ancien aperçu en cache : pour Telegram, envoyer l'URL à @WebpageBot.
 
