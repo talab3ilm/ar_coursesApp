@@ -3,7 +3,7 @@
 -- service_role (tools/publish.py) et, plus tard, au tableau de bord /admin.
 
 create table if not exists public.subjects (
-  id        text primary key,           -- slug latin : sira, fiqh, tajwid, aqida, nahw, sarf
+  id        text primary key,           -- slug latin : sira, tajwid, aqida, nahw, fiqh
   name_ar   text not null,
   position  integer not null default 0
 );
@@ -52,8 +52,7 @@ insert into public.subjects (id, name_ar, position) values
   ('tajwid', 'التجويد',           2),
   ('aqida',  'التوحيد والعقيدة',  3),
   ('nahw',   'النحو',             4),
-  ('fiqh',   'الفقه',             5),
-  ('sarf',   'الصرف',             6)
+  ('fiqh',   'الفقه',             5)
 on conflict (id) do update set name_ar = excluded.name_ar, position = excluded.position;
 
 -- Droits SQL : les projets Supabase récents ne donnent plus rien à anon/authenticated

@@ -53,12 +53,11 @@ SERIES_TO_SUBJECT = {
     "الفقه": "fiqh",
     "التوحيد والعقيدة": "aqida", "التوحيد و العقيدة": "aqida", "العقيدة": "aqida", "التوحيد": "aqida",
     "النحو": "nahw",
-    "الصرف": "sarf",
 }
 # Nom affiché de chaque matière (= subjects.name_ar dans supabase/schema.sql).
 SUBJECT_NAMES = {
     "sira": "السيرة النبوية", "fiqh": "الفقه", "tajwid": "التجويد",
-    "aqida": "التوحيد والعقيدة", "nahw": "النحو", "sarf": "الصرف",
+    "aqida": "التوحيد والعقيدة", "nahw": "النحو",
 }
 # Fichiers relus (convention « -ok ») : resume-ok.md, anki-ok.tsv (repli : anki.tsv), mindmap-ok.json
 # (jamais mindmap.json, brouillon non relu). Dans Storage ils sont renommés resume.md, anki.tsv, mindmap.json.

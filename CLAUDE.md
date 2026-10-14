@@ -322,4 +322,4 @@ traitements longs délégués à des sous-agents en arrière-plan.
   non poussés : tant qu'ils ne le sont pas, le cron CI republie l'ancien `anki.tsv` du dépôt distant.
 - Ordre des matières (2026-10-14, demande de l'utilisateur) : sira, tajwid, aqida, nahw, fiqh, sarf
   (`subjects.position`, mis à jour en base et dans le seed de `schema.sql`).
-
+- Matière الصرف retirée (2026-10-14, demande de l'utilisateur) : ligne supprimée de `subjects`, du seed et de `publish.py`.
