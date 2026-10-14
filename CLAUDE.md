@@ -299,4 +299,9 @@ traitements longs délégués à des sous-agents en arrière-plan.
   Le site ne garde que résumés, cartes et cartes mentales produits par les étudiants. Zones grises
   signalées à l'utilisateur : résumés dérivés des enregistrements, nœuds de la carte mentale sourcés
   « خ » (carte de l'académie), références « ص N » au fichier du cours, nom « الأكاديمية » dans le titre du site.
+- Levée des ambiguïtés (2026-10-14, accord de l'utilisateur « ok pour toute action ») : site renommé
+  **« مراجعة الدروس »** (titre, bandeau, accueil, README) pour ne pas suggérer un lien officiel (art. 41-3) ;
+  page « عن الموقع » et pied de page affirment : travail d'étudiants indépendant, ne représente pas
+  l'académie, ne publie ni enregistrements ni supports, retrait sur demande via les issues GitHub.
+  `hide_video.sql` exécuté par l'utilisateur ; vérifié : `anon` reçoit 42501 sur `youtube_url` et `chapters`.
 

@@ -22,8 +22,8 @@ export default function Home() {
   return (
     <>
       <header className="hero">
-        <h1>دروس الأكاديمية</h1>
-        <p className="lead">فيديو الدرس، ملخّص قابل للنقر، بطاقات مراجعة، وخريطة ذهنية لكل درس.</p>
+        <h1>مراجعة الدروس</h1>
+        <p className="lead">ملخّص، بطاقات مراجعة، وخريطة ذهنية لكل درس، من إعداد الطلبة لأنفسهم.</p>
         {lastCourse && (
           <Link className="btn btn-ghost" to={`/c/${lastCourse}`}>
             متابعة آخر درس ←

@@ -1,9 +1,9 @@
-# ar_coursesApp — دروس الأكاديمية
+# ar_coursesApp — مراجعة الدروس
 
 Site : <https://coursesapp-lac.vercel.app/>
 
-Vitrine en ligne des cours du second cerveau : pour chaque cours, la vidéo, un résumé
-cliquable (horodatages vers la vidéo), des cartes de révision tirées des decks Anki et une
+Site de révision tenu par des étudiants, indépendant de l'académie : pour chaque cours, un
+résumé, des cartes de révision tirées des decks Anki et une
 carte mentale dépliable. Interface en arabe, lecture de droite à gauche.
 
 Troisième dépôt du projet, aux côtés de `ar_audioToMd` (pipeline de production du contenu)
@@ -38,5 +38,8 @@ commité ici : il vit dans Supabase.
 
 ## Licence du contenu
 
-Le code de ce dépôt est public ; le contenu des cours (résumés, cartes, vidéos) appartient
-à l'académie et n'est pas inclus dans le dépôt.
+Le code de ce dépôt est public ; le contenu (résumés, cartes, cartes mentales) est produit par
+les étudiants pour leur révision et n'est pas inclus dans le dépôt. Le site ne diffuse ni les
+enregistrements des cours ni les supports de l'académie, conformément à son règlement intérieur
+(<https://albajiacademy.com/rules/>), et ne la représente pas. Toute demande de retrait d'un
+contenu peut être faite dans les issues de ce dépôt.

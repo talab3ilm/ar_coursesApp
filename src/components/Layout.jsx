@@ -11,7 +11,7 @@ export default function Layout() {
     <div className="app">
       <header className="topbar">
         <Link to="/" className="brand">
-          دروس الأكاديمية
+          مراجعة الدروس
         </Link>
         <nav className="topnav">
           <NavLink to="/" end>
@@ -30,7 +30,9 @@ export default function Layout() {
         <span>
           التقدّم محفوظ في هذا المتصفح فقط. <Link to="/progress">صدّره</Link>
         </span>
-        <Link to="/about">عن الموقع</Link>
+        <span>
+          عمل طلابي مستقل، لا يمثّل الأكاديمية. <Link to="/about">عن الموقع</Link>
+        </span>
       </footer>
     </div>
   )
