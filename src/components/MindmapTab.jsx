@@ -115,6 +115,8 @@ export default function MindmapTab({ tree }) {
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState(null)
   const [openedAll, setOpenedAll] = useState(false)
+  // Vue carte (horizontale, racine à droite) par défaut, liste sur petit écran, comme miniApp.
+  const [view, setView] = useState(() => (window.matchMedia?.('(max-width: 700px)').matches ? 'list' : 'map'))
   const [overrides, setOverrides] = useState(() => new Map()) // id -> ouvert ?
 
   const indexed = useMemo(() => (tree ? index(tree) : null), [tree])
@@ -180,6 +182,14 @@ export default function MindmapTab({ tree }) {
   return (
     <div className="mindmap">
       <div className="toolbar">
+        <div className="seg" role="group" aria-label="العرض">
+          <button aria-pressed={view === 'map'} onClick={() => setView('map')}>
+            الخريطة
+          </button>
+          <button aria-pressed={view === 'list'} onClick={() => setView('list')}>
+            القائمة
+          </button>
+        </div>
         <input
           type="search"
           value={query}
@@ -201,7 +211,7 @@ export default function MindmapTab({ tree }) {
       </div>
       <div className="work">
         <section className="canvas" aria-label="الخريطة الذهنية">
-          <ul className={`tree ${hits ? 'searching' : ''}`}>{renderNode(root)}</ul>
+          <ul className={`tree ${view} ${hits ? 'searching' : ''}`}>{renderNode(root)}</ul>
         </section>
         <Detail node={current} onSelect={setSelected} />
       </div>

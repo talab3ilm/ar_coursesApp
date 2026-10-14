@@ -189,8 +189,20 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
   .detail { position: static; max-height: none; }
 }
 .tree, .tree ul { list-style: none; margin: 0; padding: 0; }
-.tree .kids { padding-inline-start: 14px; margin-inline-start: 12px; border-inline-start: 2px solid color-mix(in srgb, var(--c) 50%, transparent); }
-.tree li { margin: 4px 0; }
+/* Vue liste (plan) */
+.tree.list .kids { padding-inline-start: 14px; margin-inline-start: 12px; border-inline-start: 2px solid color-mix(in srgb, var(--c) 50%, transparent); }
+.tree.list li { margin: 4px 0; }
+/* Vue carte : arbre horizontal, racine à droite (RTL), connecteurs en traits de la couleur de la branche */
+.tree.map { display: inline-flex; min-width: 100%; }
+.tree.map li { position: relative; display: flex; align-items: center; margin: 3px 0; }
+.tree.map li > .node { flex: none; max-width: 250px; }
+.tree.map .kids { position: relative; display: flex; flex-direction: column; padding-inline-start: 34px; }
+.tree.map .kids::before { content: ''; position: absolute; inset-inline-start: 0; top: 50%; width: 18px; border-top: 2px solid var(--c); }
+.tree.map .kids > li::before { content: ''; position: absolute; inset-inline-start: -16px; top: 50%; width: 16px; border-top: 2px solid var(--c); }
+.tree.map .kids > li::after { content: ''; position: absolute; inset-inline-start: -16px; top: 0; bottom: 0; border-inline-start: 2px solid var(--c); }
+.tree.map .kids > li:first-child::after { top: 50%; }
+.tree.map .kids > li:last-child::after { bottom: 50%; }
+.tree.map .kids > li:only-child::after { display: none; }
 .node {
   border: 1.5px solid color-mix(in srgb, var(--c) 55%, transparent);
   background: color-mix(in srgb, var(--c) 9%, var(--surface));

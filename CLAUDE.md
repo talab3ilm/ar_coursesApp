@@ -247,3 +247,6 @@ traitements longs délégués à des sous-agents en arrière-plan.
   (48 nœuds, 23 questions), chargée dans Supabase à la main ; copie dans
   `ar_audioToMd/temp/mindmap-Y2iDJNpa7wg.json` à déposer dans le dossier du cours du vault.
   Tant que le vault n'a pas de `mindmap.json`, `publish.py` ne touche pas à la table `mindmaps`.
+- Carte mentale (2026-10-14) : vue « الخريطة » horizontale comme miniApp (racine à droite,
+  connecteurs CSS en pseudo-éléments, couleur par branche) par défaut au-dessus de 700 px,
+  vue « القائمة » (plan) sinon ; sélecteur dans la barre d'outils.
