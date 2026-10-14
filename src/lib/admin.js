@@ -141,3 +141,49 @@ export function parseMindmap(text) {
   check(tree, 'racine')
   return tree
 }
+
+// ---------- horodatages des titres ----------
+const HEADING = /^(#{1,6})\s+(.*?)\s*(?:\[(\d{1,2}):(\d{2})(?::(\d{2}))?\])?\s*$/
+
+/** Titres du résumé avec leur temps (secondes ou null) : [{ line, level, title, seconds }]. */
+export function summaryHeadings(md) {
+  const out = []
+  ;(md ?? '').split('\n').forEach((text, line) => {
+    const m = HEADING.exec(text)
+    if (!m) return
+    const [a, b, c] = [m[3], m[4], m[5]]
+    const seconds = a === undefined ? null : c !== undefined ? +a * 3600 + +b * 60 + +c : +a * 60 + +b
+    out.push({ line, level: m[1].length, title: m[2], seconds })
+  })
+  return out
+}
+
+/** "12:34" ou "1:02:03" -> secondes ; "" -> null ; sinon NaN. */
+export function parseTime(text) {
+  const t = text.trim()
+  if (!t) return null
+  if (!/^\d{1,2}(:\d{2}){1,2}$/.test(t)) return NaN
+  return t.split(':').reduce((acc, p) => acc * 60 + Number(p), 0)
+}
+
+export function formatTime(seconds) {
+  if (seconds === null || seconds === undefined) return ''
+  const h = Math.floor(seconds / 3600)
+  const m = Math.floor((seconds % 3600) / 60)
+  const s = seconds % 60
+  return h ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}` : `${m}:${String(s).padStart(2, '0')}`
+}
+
+/** Réécrit les marqueurs [m:ss] des titres ; times = { [line]: seconds | null }. */
+export function applyHeadingTimes(md, times) {
+  const lines = md.split('\n')
+  for (const [line, seconds] of Object.entries(times)) {
+    const m = HEADING.exec(lines[line] ?? '')
+    if (!m) continue
+    lines[line] = `${m[1]} ${m[2]}${seconds === null ? '' : ` [${formatTime(seconds)}]`}`
+  }
+  return lines.join('\n')
+}
+
+export const updateSummary = (id, summary_md) =>
+  run(supabase.from('courses').update({ summary_md, updated_at: new Date().toISOString() }).eq('id', id))

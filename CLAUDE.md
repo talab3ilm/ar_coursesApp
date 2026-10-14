@@ -66,8 +66,9 @@ surveiller si on héberge les `.apkg`.
 - `chapters` : `course_id`, `seconds`, `title` (horodatages pour la vidéo).
 - Bucket Storage `content/<subject>/<course_id>/` : `resume.md`, `anki.tsv`, `anki.apkg`,
   `mindmap.json`. Les fichiers y sont renommés ainsi quel que soit leur nom dans le vault :
-  `publish.py` accepte `anki*.tsv`, `anki*.apkg` et `resume-ok.md` ou `resume.md` (le premier
-  trouvé), et ne modifie jamais le vault lui-même.
+  `publish.py` accepte `anki*.tsv`, `anki*.apkg`, `resume-ok.md` ou `resume.md` (le premier
+  trouvé) et `mindmap-ok.json` uniquement (jamais `mindmap.json`, brouillon non relu) ; il ne
+  modifie jamais le vault lui-même.
 
 Règle de cohabitation CI / admin : l'action CI ne touche jamais une ligne `managed_by =
 manual` ; le tableau de bord peut basculer une ligne en `manual` pour figer une correction.
@@ -100,7 +101,9 @@ avec `tag` dans `def | key | ex | diff | link | warn | nass` et `source` = page,
 
 Pourquoi pas Mermaid : la syntaxe mindmap de Mermaid ne porte que des libellés, sans
 définitions, questions ni sources, et son analyse est fragile. Le JSON alimente directement
-l'arbre interactif et la recherche. Le pipeline produira `mindmap.json` à partir de
+l'arbre interactif et la recherche. Le pipeline produit `mindmap.json` (brouillon, non relu) ;
+l'utilisateur le relit et l'enregistre en `mindmap-ok.json`, **seul fichier que `publish.py`
+lit** (règle du 2026-10-14, même logique que `resume-ok.md`). Il est produit à partir de
 `resume-ok.md` (nouveau mode de `draft_lesson.py` dans `ar_audioToMd`) et pourra en dériver
 un bloc Mermaid pour l'affichage dans Obsidian ; le JSON reste la source.
 
@@ -246,7 +249,7 @@ traitements longs délégués à des sous-agents en arrière-plan.
 - Carte mentale de la sira (2026-10-14) : celle d'Abdelali, extraite de `docs/miniApp.html`
   (48 nœuds, 23 questions), chargée dans Supabase à la main ; copie dans
   `ar_audioToMd/temp/mindmap-Y2iDJNpa7wg.json` à déposer dans le dossier du cours du vault.
-  Tant que le vault n'a pas de `mindmap.json`, `publish.py` ne touche pas à la table `mindmaps`.
+  Tant que le vault n'a pas de `mindmap-ok.json`, `publish.py` ne touche pas à la table `mindmaps`.
 - Carte mentale (2026-10-14) : vue « الخريطة » horizontale comme miniApp (racine à droite,
   connecteurs CSS en pseudo-éléments, couleur par branche) par défaut au-dessus de 700 px,
   vue « القائمة » (plan) sinon ; sélecteur dans la barre d'outils. Pas de vue révision dans la

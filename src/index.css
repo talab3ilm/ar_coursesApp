@@ -287,3 +287,9 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .preview { margin-top: 12px; }
 .actions { margin-top: 20px; }
 .btn-danger { background: var(--surface); border-color: var(--ko); color: var(--ko); margin-inline-start: auto; }
+
+/* Éditeur des temps des titres (/admin) */
+.ts-editor { margin-top: 20px; }
+.ts-editor .admin-table td { padding: 4px 8px; }
+.ts-cell input { width: 90px; border: 1px solid var(--line); background: var(--surface); color: inherit; border-radius: 6px; padding: 3px 8px; font: inherit; }
+.ts-cell input.invalid { border-color: var(--ko); }

@@ -6,6 +6,7 @@ import {
 import { ErrorBox, Loading } from '../components/Loading.jsx'
 import SummaryTab from '../components/SummaryTab.jsx'
 import MindmapTab from '../components/MindmapTab.jsx'
+import TimestampEditor from './TimestampEditor.jsx'
 import { youtubeId } from '../lib/arabic'
 
 const EMPTY = { id: '', subject_id: '', number: '', title: '', teacher: '', date: '', duration: '', youtube_url: '' }
@@ -222,6 +223,16 @@ export default function CourseForm({ id, subjects, onDone }) {
         <div className="panel preview">
           <MindmapTab tree={files.mindmap.tree} />
         </div>
+      )}
+
+      {course?.summary_md && !files.resume && (
+        <TimestampEditor
+          key={course.summary_md}
+          courseId={courseId}
+          summary={course.summary_md}
+          videoId={youtubeId(fields)}
+          onSaved={async () => setCourse(await loadCourse(courseId))}
+        />
       )}
 
       <div className="row actions">
