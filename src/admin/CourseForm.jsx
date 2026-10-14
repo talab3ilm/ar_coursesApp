@@ -132,7 +132,7 @@ export default function CourseForm({ id, subjects, onDone }) {
 
       <div className="form-grid">
         <label>
-          المعرّف (معرّف يوتيوب أو معرّف المنصة)
+          معرّف يوتيوب
           <input dir="ltr" value={fields.id} onChange={set('id')} disabled={!!id} required />
         </label>
         <label>
