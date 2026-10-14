@@ -239,11 +239,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .kidsnav { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
 .kidsnav button { border-radius: 999px; padding: 1px 10px; font-size: 0.8rem; background: transparent; }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 10px; margin: 0 0 12px; align-items: center; }
-.revhead { display: flex; justify-content: space-between; gap: 12px; margin: 0 0 8px; }
-.revlist .qcard { margin-top: 10px; }
-.qtop { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px; }
-.known { border: 1px solid var(--line); background: transparent; border-radius: 6px; font-size: 0.75rem; padding: 0 8px; }
-.known[aria-pressed='true'] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 
