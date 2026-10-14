@@ -110,7 +110,7 @@ export default function CourseForm({ id, subjects, onDone }) {
     if (!window.confirm(`حذف الدرس « ${fields.title} » وكل بطاقاته نهائيا؟`)) return
     setBusy(true)
     try {
-      await deleteCourse(courseId)
+      await deleteCourse(courseId, course?.subject_id ?? fields.subject_id)
       onDone()
     } catch (err) {
       setStatus({ ok: false, text: err.message })

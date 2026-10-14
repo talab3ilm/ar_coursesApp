@@ -78,8 +78,13 @@ export async function uploadFile(subjectId, courseId, name, text, mime) {
   if (error) throw new Error(error.message)
 }
 
-export async function deleteCourse(id) {
+export async function deleteCourse(id, subjectId) {
   await run(supabase.from('courses').delete().eq('id', id)) // cartes, chapitres, carte : cascade
+  if (subjectId) {
+    const { data } = await supabase.storage.from('content').list(`${subjectId}/${id}`)
+    const names = (data ?? []).map((o) => `${subjectId}/${id}/${o.name}`)
+    if (names.length) await supabase.storage.from('content').remove(names) // fichiers du bucket
+  }
 }
 
 // ---------- analyses de fichiers (identiques à publish.py) ----------
