@@ -49,10 +49,10 @@ create table if not exists public.chapters (
 -- Matières de départ (CLAUDE.md). L'ordre d'affichage suit position.
 insert into public.subjects (id, name_ar, position) values
   ('sira',   'السيرة النبوية',    1),
-  ('fiqh',   'الفقه',             2),
-  ('tajwid', 'التجويد',           3),
-  ('aqida',  'التوحيد والعقيدة',  4),
-  ('nahw',   'النحو',             5),
+  ('tajwid', 'التجويد',           2),
+  ('aqida',  'التوحيد والعقيدة',  3),
+  ('nahw',   'النحو',             4),
+  ('fiqh',   'الفقه',             5),
   ('sarf',   'الصرف',             6)
 on conflict (id) do update set name_ar = excluded.name_ar, position = excluded.position;
 

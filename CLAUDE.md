@@ -320,4 +320,6 @@ traitements longs délégués à des sous-agents en arrière-plan.
   lu). Renommés `resume.md`, `anki.tsv`, `mindmap.json` dans Storage. Fixture renommée en conséquence.
   Tajwid `aDsOW0pQwbw` republié en local avec sa carte mentale (53 cartes). Le vault local a des changements
   non poussés : tant qu'ils ne le sont pas, le cron CI republie l'ancien `anki.tsv` du dépôt distant.
+- Ordre des matières (2026-10-14, demande de l'utilisateur) : sira, tajwid, aqida, nahw, fiqh, sarf
+  (`subjects.position`, mis à jour en base et dans le seed de `schema.sql`).
 
