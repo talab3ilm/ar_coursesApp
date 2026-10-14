@@ -86,7 +86,7 @@ export default function ReviewTab({ cards }) {
     <div className="review">
       <header className="review-intro">
         <h2>المراجعة</h2>
-        <p>حاول الإجابة قبل إظهار الجواب. الأسئلة مأخوذة من الدرس، وأجوبتها من نصه أو من خريطة الأكاديمية.</p>
+        <p>حاول الإجابة قبل إظهار الجواب. الأسئلة مأخوذة من الدرس، وأجوبتها من ملخّصه أو من خريطته الذهنية.</p>
         <p className="small muted">علامة «عرفتُها» تُحفظ في هذا المتصفح فقط.</p>
       </header>
       <div className="toolbar">

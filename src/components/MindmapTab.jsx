@@ -50,8 +50,8 @@ function Legend() {
           {label}
         </span>
       ))}
-      <span className="src">ص 4 = صفحة ملف الدرس</span>
-      <span className="src map">الخريطة = خريطة الأكاديمية</span>
+      <span className="src">ص 4 = صفحة في ملف الدرس</span>
+      <span className="src map">الخريطة = من خريطة الدرس</span>
       <span className="src add">إضافة = ليست في الدرس</span>
     </div>
   )
