@@ -254,3 +254,8 @@ traitements longs délégués à des sous-agents en arrière-plan.
   connecteurs CSS en pseudo-éléments, couleur par branche) par défaut au-dessus de 700 px,
   vue « القائمة » (plan) sinon ; sélecteur dans la barre d'outils. Pas de vue révision dans la
   carte (demande du 2026-10-14) : la révision est l'onglet المراجعة du cours.
+- `/admin` (2026-10-14) : éditeur « أوقات العناوين » dans le formulaire d'un cours : un champ
+  de temps par titre du résumé (marqueurs `[m:ss]`), lien ▶ vers la vidéo à cet instant,
+  « حفظ الأوقات » (met à jour `summary_md` seulement, pas la table `chapters`) et
+  « تنزيل resume-ok.md بالأوقات » pour remettre le fichier dans le vault, où les marqueurs
+  manuels sont conservés par `align.py`. En mode `pipeline`, le prochain run recalcule.
