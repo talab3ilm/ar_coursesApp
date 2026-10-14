@@ -147,9 +147,17 @@ mêmes marqueurs remplissent `chapters`. Dans Obsidian, le marqueur reste lisibl
   français, sujet « zone : ce qui change » (`front`, `admin`, `publish`, `ci`, `docs`).
 - Interface en arabe ; chiffres latins partout ; code et identifiants en anglais ; commentaires
   et documentation en français.
+- Citations dans le contenu : `{{…}}` est un verset coranique, `{…}` toute autre citation
+  (hadith, savant, vers). Le rendu du résumé, des cartes et des nœuds de la carte mentale
+  les met en valeur (style distinct pour chacun) et ne les affiche jamais avec les accolades.
 - Secrets : `.env.local` (front, clés `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`) hors
-  git ; `SUPABASE_SERVICE_ROLE_KEY` et le jeton de lecture du vault uniquement dans les
-  secrets GitHub.
+  git ; `SUPABASE_SERVICE_ROLE_KEY` et `VAULT_READ_TOKEN` uniquement dans les secrets GitHub.
+  `VAULT_READ_TOKEN` est un jeton GitHub à portée fine du compte talab3ilm, limité au dépôt
+  privé du vault, permission Contents en lecture seule. Dans l'autre sens, le vault garde un
+  jeton limité à ce dépôt (Contents en écriture) pour envoyer le `repository_dispatch`.
+  Les dépôts du pipeline et du vault sont privés ; l'appli n'a besoin que de lire le vault.
+- Journaux CI : si ce dépôt est public, les journaux des actions le sont aussi. `publish.py`
+  n'affiche jamais le contenu des résumés ni des cartes, seulement des noms et des comptages.
 - Python des outils : `python3 -I` pour tout script qui lit des fichiers venant du vault.
 - Aucun contenu de cours (résumés, transcriptions, PDF) n'est commité ici, sauf un jeu
   d'essai minimal dans `fixtures/` pour les tests.
@@ -307,4 +315,9 @@ traitements longs délégués à des sous-agents en arrière-plan.
 - Métadonnées de partage (2026-10-14) : description, balises Open Graph et Twitter dans `index.html`,
   image `public/og.png` (1200×630, rendue avec Playwright depuis un HTML du scratchpad). Les messageries
   (Telegram, WhatsApp) gardent l'ancien aperçu en cache : pour Telegram, envoyer l'URL à @WebpageBot.
+- Convention « -ok » appliquée dans `publish.py` (2026-10-14, demande de l'utilisateur) : fichiers relus
+  `resume-ok.md`, `anki-ok.tsv` (repli `anki.tsv`, cas de la sira) et `mindmap-ok.json` (seul fichier de carte
+  lu). Renommés `resume.md`, `anki.tsv`, `mindmap.json` dans Storage. Fixture renommée en conséquence.
+  Tajwid `aDsOW0pQwbw` republié en local avec sa carte mentale (53 cartes). Le vault local a des changements
+  non poussés : tant qu'ils ne le sont pas, le cron CI republie l'ancien `anki.tsv` du dépôt distant.
 

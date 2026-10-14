@@ -11,7 +11,7 @@ Secrets : SUPABASE_URL (ou VITE_SUPABASE_URL) et SUPABASE_SERVICE_ROLE_KEY, lus 
 l'environnement, sinon dans --env-file (.env.local par défaut, ignoré par git).
 
 Règles :
-- un cours est publiable s'il contient meta.md, resume-ok.md et anki.tsv ;
+- un cours est publiable s'il contient meta.md, resume-ok.md et anki-ok.tsv (ou anki.tsv) ;
 - les lignes courses.managed_by = 'manual' ne sont jamais touchées ;
 - un cours publié par le pipeline et absent du vault est dépublié, pas supprimé ;
 - guid d'une carte = colonne guid du TSV si présente, sinon hachage (course_id, question) ;
@@ -55,8 +55,27 @@ SERIES_TO_SUBJECT = {
     "النحو": "nahw",
     "الصرف": "sarf",
 }
-REQUIRED = ("meta.md", "resume-ok.md", "anki.tsv")
-STORAGE_FILES = {"resume-ok.md": "resume.md", "anki.tsv": "anki.tsv", "mindmap.json": "mindmap.json"}
+# Fichiers relus (convention « -ok ») : resume-ok.md, anki-ok.tsv (repli : anki.tsv), mindmap-ok.json
+# (jamais mindmap.json, brouillon non relu). Dans Storage ils sont renommés resume.md, anki.tsv, mindmap.json.
+ANKI_CANDIDATES = ("anki-ok.tsv", "anki.tsv")
+MINDMAP_FILE = "mindmap-ok.json"
+
+
+def find_anki(folder: Path) -> Path | None:
+    return next((folder / n for n in ANKI_CANDIDATES if (folder / n).exists()), None)
+
+
+def missing_files(folder: Path) -> list[str]:
+    missing = [f for f in ("meta.md", "resume-ok.md") if not (folder / f).exists()]
+    if find_anki(folder) is None:
+        missing.append("anki-ok.tsv")
+    return missing
+
+
+def storage_files(folder: Path) -> list[tuple[Path, str]]:
+    """(fichier du vault, nom dans Storage) pour les fichiers présents."""
+    pairs = [(folder / "resume-ok.md", "resume.md"), (find_anki(folder), "anki.tsv"), (folder / MINDMAP_FILE, "mindmap.json")]
+    return [(src, dst) for src, dst in pairs if src is not None and src.exists()]
 MIME = {".md": "text/markdown", ".tsv": "text/tab-separated-values", ".json": "application/json"}
 FRONTMATTER = re.compile(r"\A---\s*\n.*?\n---[ \t]*\n?", re.DOTALL)
 TASHKEEL = re.compile(r"[ؐ-ًؚ-ٰٟۖ-ۭـ]")
@@ -162,8 +181,8 @@ def parse_chapters(summary_md: str, course_id: str) -> list[dict]:
 
 def read_common(course: Course, folder: Path) -> None:
     course.raw_summary = strip_frontmatter((folder / "resume-ok.md").read_text(encoding="utf-8"))
-    course.cards = parse_cards(folder / "anki.tsv", course.id)
-    mindmap = folder / "mindmap.json"
+    course.cards = parse_cards(find_anki(folder), course.id)
+    mindmap = folder / MINDMAP_FILE
     if mindmap.exists():
         course.mindmap = json.loads(mindmap.read_text(encoding="utf-8"))
 
@@ -230,7 +249,7 @@ def scan_vault(vault: Path, skipped: list[str]) -> list[Course]:
     dates = platform_dates(vault)
     folders = sorted((vault / "raw" / "youtube").glob("*/")) + sorted((vault / "raw" / "academy").glob("*/*/"))
     for folder in folders:
-        missing = [f for f in REQUIRED if not (folder / f).exists()]
+        missing = missing_files(folder)
         if missing:
             skipped.append(f"{folder.name} : manque {', '.join(missing)}")
             continue
@@ -375,10 +394,8 @@ def finalize(course: Course, youtube_chapters: list[dict] | None) -> None:
 
 def publish(sb: Supabase, course: Course) -> None:
     sb.upsert("courses", [course.row()], "id")
-    for src, dst in STORAGE_FILES.items():
-        path = course.folder / src
-        if path.exists():
-            sb.upload("content", f"{course.subject_id}/{course.id}/{dst}", path.read_bytes(), MIME[path.suffix])
+    for path, dst in storage_files(course.folder):
+        sb.upload("content", f"{course.subject_id}/{course.id}/{dst}", path.read_bytes(), MIME[path.suffix])
     cid = urllib.parse.quote(course.id)
     sb.delete("cards", f"course_id=eq.{cid}")
     sb.upsert("cards", course.cards, "guid")
