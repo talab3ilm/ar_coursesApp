@@ -21,6 +21,7 @@
   --ko: #a8322b;
   --f-display: 'Amiri', 'Traditional Arabic', serif;
   --f-body: 'IBM Plex Sans Arabic', 'Segoe UI', 'Tahoma', sans-serif;
+  --f-read: 'Noto Naskh Arabic', 'Amiri', 'Traditional Arabic', serif; /* longs textes : résumé, cartes */
   color-scheme: light dark;
 }
 @media (prefers-color-scheme: dark) {
@@ -147,10 +148,14 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 }
 .prose { max-width: 75ch; }
 .prose h1 { font-size: 1.7rem; margin-top: 8px; }
-.prose h2 { font-size: 1.35rem; margin-top: 22px; border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+.prose h2 { font-size: 1.45rem; margin-top: 28px; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
 .prose h3 { margin-top: 16px; }
-.prose p, .prose li { line-height: 1.9; }
-.prose blockquote { font-family: var(--f-display); font-size: 1.15rem; border-inline-start: 3px solid var(--gold); margin: 12px 0; padding: 4px 14px; }
+/* Texte de lecture : police naskh, corps plus grand, interlignage ample, mots espacés (jamais les lettres) */
+.prose p, .prose li, .prose td, .prose th { font-family: var(--f-read); font-size: 1.2rem; line-height: 2.15; word-spacing: 0.12em; }
+.prose p { margin: 0 0 1.1em; }
+.prose li { margin-bottom: 0.3em; }
+.prose blockquote { font-family: var(--f-display); font-size: 1.25rem; line-height: 2; border-inline-start: 3px solid var(--gold); margin: 14px 0; padding: 4px 14px; }
+.prose blockquote p { font-family: var(--f-display); }
 .prose table { border-collapse: collapse; }
 .prose td, .prose th { border: 1px solid var(--line); padding: 4px 10px; }
 
@@ -170,13 +175,13 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
   border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; margin: 12px 0;
   background: color-mix(in srgb, var(--accent) 4%, var(--surface));
 }
-.flashcard .question { font-size: 1.15rem; font-weight: 600; margin: 6px 0 14px; }
-.flashcard .answer { font-family: var(--f-display); font-size: 1.2rem; line-height: 1.9; border-top: 1px dashed var(--line); padding-top: 10px; margin: 0; }
+.flashcard .question { font-family: var(--f-read); font-size: 1.3rem; line-height: 2; font-weight: 700; margin: 6px 0 14px; word-spacing: 0.1em; }
+.flashcard .answer { font-family: var(--f-read); font-size: 1.25rem; line-height: 2.1; word-spacing: 0.1em; border-top: 1px dashed var(--line); padding-top: 10px; margin: 0; }
 .flashcard .tags { margin: 12px 0 0; }
 .options { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
 .option {
   width: 100%; text-align: start; border: 1px solid var(--line); background: var(--surface);
-  border-radius: 8px; padding: 8px 12px; line-height: 1.7;
+  border-radius: 8px; padding: 8px 12px; line-height: 2; font-family: var(--f-read); font-size: 1.1rem; word-spacing: 0.1em;
 }
 .option:hover:not(:disabled) { border-color: var(--accent); }
 .option.correct { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 12%, var(--surface)); }
@@ -223,7 +228,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .node.hit { background: var(--hit); color: var(--ink); opacity: 1; }
 .items { list-style: none; padding: 0; margin: 0; }
 .items li { border-top: 1px solid var(--line); padding: 8px 0; display: flex; flex-direction: column; gap: 3px; }
-.items p { margin: 0; }
+.items p { margin: 0; font-family: var(--f-read); font-size: 1.1rem; line-height: 2; word-spacing: 0.1em; }
 .items .h { display: flex; gap: 6px; align-items: center; }
 .tag { font-size: 0.72rem; font-weight: 700; padding: 0 7px; border-radius: 4px; border: 1px solid currentColor; }
 .src { font-size: 0.72rem; color: var(--muted); border: 1px dashed var(--line); border-radius: 4px; padding: 0 6px; }
@@ -234,7 +239,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
   margin-top: 14px; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px;
   background: color-mix(in srgb, var(--accent) 5%, var(--surface));
 }
-.qcard p { margin: 0; }
+.qcard p { margin: 0; font-family: var(--f-read); font-size: 1.1rem; line-height: 2; word-spacing: 0.1em; }
 .qq { font-weight: 600; }
 .qa { margin-top: 6px !important; }
 .reveal { padding: 1px 10px; font-size: 0.8rem; margin-top: 6px; }
@@ -268,7 +273,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .progress-page .btn { margin-top: 4px; }
 
 /* Citations : Coran {{…}} affiché ﴿…﴾, hadith {…} affiché «…», police d'apparat comme les vers */
-.quran, .hadith { font-family: var(--f-display); font-style: normal; font-size: 1.12em; line-height: 1.9; }
+.quran, .hadith { font-family: var(--f-display); font-style: normal; font-size: 1.1em; line-height: inherit; }
 .hadith { font-size: 1.08em; }
 
 /* Tableau de bord /admin */

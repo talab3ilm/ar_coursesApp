@@ -259,3 +259,8 @@ traitements longs délégués à des sous-agents en arrière-plan.
   « حفظ الأوقات » (met à jour `summary_md` seulement, pas la table `chapters`) et
   « تنزيل resume-ok.md بالأوقات » pour remettre le fichier dans le vault, où les marqueurs
   manuels sont conservés par `align.py`. En mode `pipeline`, le prochain run recalcule.
+- Typographie de lecture (2026-10-14, demande de l'utilisateur) : `--f-read` = Noto Naskh
+  Arabic (Google Fonts) pour les paragraphes du résumé, les cartes de révision, le QCM et
+  les éléments de la carte mentale : 1.2rem, interligne 2.15, `word-spacing: 0.12em`.
+  Jamais de `letter-spacing` en arabe (casse les liaisons). Titres toujours en Amiri,
+  interface en IBM Plex Sans Arabic.
