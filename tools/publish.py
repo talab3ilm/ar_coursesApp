@@ -204,7 +204,12 @@ def youtube_course(folder: Path, meta: dict, skipped: list[str]) -> Course | Non
                     youtube_url=meta.get("url") or f"https://www.youtube.com/watch?v={meta['id']}")
     m = TRAILING_NUMBER.search(title)
     course.number = int(m.group(1)) if m else None
+    # Titre affiché : « matière - السنة الأولى - NN », jamais le titre YouTube brut (noms d'enseignants,
+    # « Ep »…). Le titre brut reste dans meta.md pour la traçabilité et le numéro de leçon.
+    course.title = f"{series} - السنة الأولى - {course.number:02d}" if course.number else series
     read_common(course, folder)
+    if course.mindmap is not None:
+        course.mindmap["t"] = course.title  # la racine de la carte reprend le titre YouTube brut
     return course
 
 
