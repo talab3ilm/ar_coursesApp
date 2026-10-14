@@ -19,6 +19,7 @@ grant execute on function public.is_admin() to authenticated;
 drop policy if exists "admins_self_read" on public.admins;
 create policy "admins_self_read" on public.admins for select to authenticated using (public.is_admin());
 grant select on public.admins to authenticated;
+grant all on public.admins to service_role; -- gestion de la liste blanche par la clé secrète (scripts)
 
 -- Tables de contenu : lecture de tout (y compris non publié) et écriture pour les admins.
 grant insert, update, delete on public.courses, public.cards, public.mindmaps, public.chapters to authenticated;
