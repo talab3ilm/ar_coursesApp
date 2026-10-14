@@ -232,3 +232,8 @@ traitements longs délégués à des sous-agents en arrière-plan.
   `manual` et non publié. Les analyses de fichiers (`src/lib/admin.js`) reproduisent
   `publish.py` (guid = sha1(id + question normalisée)[:16], frontmatter retiré, chapitres
   depuis les marqueurs des titres). Pas d'alignement d'horodatages côté admin.
+- Étape 6 validée le 2026-10-14 avec un administrateur de test temporaire (créé puis supprimé
+  via l'API admin de Supabase Auth) : connexion, création d'un cours, dépôt des trois
+  fichiers, aperçu, sauvegarde, publication, dépublication, suppression. `admin.sql` donne
+  aussi `grant all on admins to service_role`. Une barrière d'erreur globale
+  (`ErrorBoundary.jsx`) remplace la page blanche en cas d'exception de rendu.
