@@ -25,6 +25,8 @@
   --read-size: 1.2rem; /* ces trois valeurs et les polices sont modifiables depuis /admin (table settings) */
   --read-lh: 2.15;
   --read-ws: 0.12em;
+  --lh-k: 1; /* facteur d'interligne, réduit sur téléphone */
+  --safe-l: env(safe-area-inset-left, 0px); --safe-r: env(safe-area-inset-right, 0px);
   color-scheme: light dark;
 }
 @media (prefers-color-scheme: dark) {
@@ -43,7 +45,7 @@
 }
 
 * { box-sizing: border-box; }
-html { direction: rtl; }
+html { direction: rtl; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 body {
   margin: 0;
   font-family: var(--f-body);
@@ -154,7 +156,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .prose h2 { font-size: 1.45rem; margin-top: 28px; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
 .prose h3 { margin-top: 16px; }
 /* Texte de lecture : police naskh, corps plus grand, interlignage ample, mots espacés (jamais les lettres) */
-.prose p, .prose li, .prose td, .prose th { font-family: var(--f-read); font-size: var(--read-size); line-height: var(--read-lh); word-spacing: var(--read-ws); }
+.prose p, .prose li, .prose td, .prose th { font-family: var(--f-read); font-size: var(--read-size); line-height: calc(var(--read-lh) * var(--lh-k, 1)); word-spacing: var(--read-ws); }
 .prose p { margin: 0 0 1.1em; }
 .prose li { margin-bottom: 0.3em; }
 .prose blockquote { font-family: var(--f-display); font-size: 1.25rem; line-height: 2; border-inline-start: 3px solid var(--gold); margin: 14px 0; padding: 4px 14px; }
@@ -192,11 +194,12 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 
 /* Carte mentale : arbre en plan (outline), panneau de détail à côté sur grand écran */
 .work { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 16px; }
-.canvas { padding: 16px; overflow-x: auto; }
+.canvas { padding: 16px; overflow-x: auto; min-width: 0; }
 .detail { padding: 16px 18px; position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow: auto; }
-@media (max-width: 900px) {
-  .work { grid-template-columns: 1fr; }
-  .detail { position: static; max-height: none; }
+/* Écrans moyens et téléphones à l'horizontale : le détail reste en colonne à gauche, plus étroit */
+@media (max-width: 1000px) and (min-width: 601px) {
+  .work { grid-template-columns: minmax(0, 1fr) minmax(240px, 300px); gap: 10px; }
+  .detail { padding: 12px; top: 8px; }
 }
 .tree, .tree ul { list-style: none; margin: 0; padding: 0; }
 /* Vue liste (plan) */
@@ -326,3 +329,76 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .settings summary { cursor: pointer; font-weight: 600; }
 .settings .form-grid { margin-top: 12px; }
 .settings .sample { border-top: 1px dashed var(--line); padding-top: 10px; margin: 0; }
+
+/* ---- Téléphones (la plupart des élèves n'ont que leur mobile) ---- */
+@media (max-width: 600px) {
+  :root { --lh-k: 0.88; }
+  body { font-size: 16px; } /* évite le zoom automatique d'iOS sur les champs (< 16px) */
+  .topbar { padding: 8px calc(12px + var(--safe-r)) 8px calc(12px + var(--safe-l)); }
+  .brand { font-size: 1.25rem; }
+  .topnav { gap: 10px; }
+  .topnav a { font-size: 0.95rem; padding: 6px 2px; }
+  .shell { padding: 12px calc(10px + var(--safe-r)) 40px calc(10px + var(--safe-l)); }
+  .footer { padding-inline: calc(12px + var(--safe-r)) calc(12px + var(--safe-l)); }
+  h1 { font-size: 1.55rem; }
+  .hero h1 { font-size: 1.8rem; }
+  .panel { padding: 12px 12px; border-radius: 8px; }
+  .prose { max-width: none; }
+  .prose h2 { font-size: 1.3rem; margin-top: 18px; }
+  .prose h3 { font-size: 1.12rem; }
+  .flashcard { padding: 14px 12px; }
+  .flashcard .question, .flashcard .answer, .option, .items p, .qcard p { line-height: calc(var(--read-lh) * var(--lh-k)); }
+  /* Cibles tactiles d'au moins 40 px et boutons de révision pleine largeur */
+  .tab, .btn, .tbtn, .seg button, .reveal, .kidsnav button, .toolbar input, .acc-toggle { min-height: 40px; }
+  .tab { padding: 6px 14px; }
+  .option { min-height: 44px; padding: 10px 12px; }
+  .flashcard .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .flashcard .row .btn { width: 100%; min-height: 46px; font-size: 1rem; text-align: center; }
+  .flashcard > .btn { width: 100%; min-height: 46px; text-align: center; }
+  .toolbar input { width: 100%; order: 10; }
+  .toolbar { gap: 6px; }
+  /* Onglets du cours collés en haut pendant le défilement */
+  .tabs[role='tablist'] {
+    position: sticky; top: 0; z-index: 6; margin: 8px -4px; padding: 8px 4px;
+    background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(6px);
+    flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .tabs[role='tablist']::-webkit-scrollbar { display: none; }
+  .tabs[role='tablist'] .tab { flex: none; }
+  .acc-head { padding: 8px 0; }
+  .acc-toggle { font-size: 1.15rem; line-height: 1.4; }
+  .acc.sub { margin-inline-start: 8px; }
+  /* Carte mentale : la carte horizontale défile au doigt, la vue liste tient dans l'écran */
+  .canvas { padding: 10px; }
+  .tree.map li > .node { max-width: 170px; }
+  .node { padding: 6px 10px; }
+  .node.l0 { font-size: 1.05rem; padding: 8px 12px; }
+  .legend { display: none; } /* la légende apparaît dans le détail de chaque nœud */
+  .work { display: block; }
+  /* Détail d'un nœud : tiroir ouvert depuis le bord gauche, par-dessus l'arbre */
+  .sheet-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.35); z-index: 20; }
+  .detail.sheet {
+    position: fixed; z-index: 21; left: 0; top: 0; bottom: 0; width: min(88vw, 420px); max-height: none;
+    border-radius: 0 14px 14px 0; border-inline-start: 0;
+    padding: 40px 14px calc(14px + env(safe-area-inset-bottom, 0px)) calc(14px + var(--safe-l));
+    box-shadow: 8px 0 30px rgba(0, 0, 0, 0.25); overflow-y: auto;
+  }
+  .sheet-close { position: absolute; top: 8px; right: 10px; min-height: 32px; padding: 0 10px; }
+  .player-panel { top: 0; margin: 8px 0; padding: 8px; }
+  .ts-editor td, .ts-editor th { padding: 4px; }
+  table.admin-table { display: block; overflow-x: auto; }
+}
+
+/* Téléphone à l'horizontale : en-tête du cours compact pour garder de la place au texte */
+@media (max-height: 520px) and (orientation: landscape) {
+  .topbar { padding-top: 4px; padding-bottom: 4px; }
+  .shell { padding-top: 8px; }
+  .crumbs { display: none; }
+  .course-head { margin-bottom: 4px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
+  .course-head h1 { font-size: 1.3rem; margin: 0; }
+  .hero h1 { font-size: 1.5rem; }
+  .hero, .lead { margin-bottom: 4px; }
+  .tabs[role='tablist'] { margin: 4px 0; }
+  .detail.sheet { max-height: 85vh; }
+  .player-panel .video-frame { max-width: 60vw; }
+}

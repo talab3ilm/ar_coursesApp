@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useMediaQuery } from '../lib/useMedia'
 import { matches } from '../lib/arabic'
 import { withQuran } from '../lib/quran.jsx'
 
@@ -81,10 +82,15 @@ function QuestionCard({ q, a }) {
   )
 }
 
-function Detail({ node, onSelect, rootLabel }) {
+function Detail({ node, onSelect, rootLabel, onClose }) {
   const empty = node.d.length === 0 && node.q.length === 0
   return (
-    <aside className="detail" aria-live="polite">
+    <aside className={`detail ${onClose ? 'sheet' : ''}`} aria-live="polite">
+      {onClose && (
+        <button type="button" className="tbtn sheet-close" onClick={onClose} aria-label="إغلاق">
+          ✕
+        </button>
+      )}
       <p className="small muted">{node.path.length ? node.path.join(SEP) : rootLabel}</p>
       <h2>
         {node.n ? `${node.n}. ` : ''}
@@ -133,6 +139,10 @@ export default function MindmapTab({ tree, rootLabel = '' }) {
   // Vue carte (horizontale, racine à droite) par défaut, liste sur petit écran, comme miniApp.
   const [view, setView] = useState(() => (window.matchMedia?.('(max-width: 700px)').matches ? 'list' : 'map'))
   const [overrides, setOverrides] = useState(() => new Map()) // id -> ouvert ?
+  // Sur téléphone, le détail d'un nœud s'ouvre en feuille basse au-dessus de l'arbre, fermable.
+  const narrow = useMediaQuery('(max-width: 600px)')
+  const canvasRef = useRef(null)
+  const treeRef = useRef(null)
 
   const indexed = useMemo(() => (tree ? index(tree) : null), [tree])
 
@@ -147,6 +157,26 @@ export default function MindmapTab({ tree, rootLabel = '' }) {
     })
     return set
   }, [indexed, query])
+
+  // Vue carte : réduite à l'échelle pour tenir dans la largeur du cadre (zoom CSS), au plus jusqu'à 55 % ;
+  // en dessous, le cadre défile horizontalement. Recalculé à chaque ouverture de branche et au redimensionnement.
+  useLayoutEffect(() => {
+    const canvas = canvasRef.current
+    const tree = treeRef.current
+    if (!canvas || !tree) return
+    const fit = () => {
+      tree.style.zoom = '1'
+      if (view !== 'map') return
+      const cs = getComputedStyle(canvas)
+      const avail = canvas.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)
+      const need = tree.scrollWidth
+      if (need > avail) tree.style.zoom = String(Math.max(0.55, avail / need))
+    }
+    fit()
+    const ro = new ResizeObserver(fit)
+    ro.observe(canvas)
+    return () => ro.disconnect()
+  }, [view, overrides, openedAll, hits, indexed])
 
   if (!indexed) return <p className="muted">الخريطة الذهنية لهذا الدرس غير متوفرة بعد.</p>
 
@@ -228,10 +258,21 @@ export default function MindmapTab({ tree, rootLabel = '' }) {
       </div>
       <Legend />
       <div className="work">
-        <section className="canvas" aria-label="الخريطة الذهنية">
-          <ul className={`tree ${view} ${hits ? 'searching' : ''}`}>{renderNode(root)}</ul>
+        <section className="canvas" aria-label="الخريطة الذهنية" ref={canvasRef}>
+          <ul ref={treeRef} className={`tree ${view} ${hits ? 'searching' : ''}`}>
+            {renderNode(root)}
+          </ul>
         </section>
-        <Detail node={current} onSelect={setSelected} rootLabel={rootLabel} />
+        {narrow ? (
+          selected !== null && (
+            <>
+              <div className="sheet-backdrop" onClick={() => setSelected(null)} />
+              <Detail node={current} onSelect={setSelected} rootLabel={rootLabel} onClose={() => setSelected(null)} />
+            </>
+          )
+        ) : (
+          <Detail node={current} onSelect={setSelected} rootLabel={rootLabel} />
+        )}
       </div>
     </div>
   )

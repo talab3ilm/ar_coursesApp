@@ -276,4 +276,13 @@ traitements longs délégués à des sous-agents en arrière-plan.
   en direct, « حفظ », « الافتراضي ». Sans ligne en base, les valeurs par défaut du CSS s'appliquent.
 - Résumé : les titres de niveau 3 sont des accordéons imbriqués dans ceux de niveau 2 (`splitAt` dans
   `SummaryTab.jsx`) ; le texte d'une section placé avant son premier `###` reste visible quand elle est ouverte.
+- Mobile d'abord (2026-10-14, la plupart des élèves n'ont qu'un téléphone) : bloc `@media (max-width: 600px)`
+  dans `index.css` (corps 16 px contre le zoom iOS, cibles tactiles ≥ 40 px, boutons de révision pleine
+  largeur, onglets du cours collants et défilants, interligne × 0.88 via `--lh-k`, marges réduites, zones
+  sûres `env(safe-area-inset-*)`, `viewport-fit=cover`) et bloc paysage (`max-height: 520px`) qui compacte
+  l'en-tête du cours. Carte mentale : la vue carte est réduite à l'échelle (`zoom` CSS, plancher 0.55,
+  `ResizeObserver`) pour tenir dans le cadre sans défilement ; le détail d'un nœud reste en colonne à gauche
+  dès 601 px (téléphone à l'horizontale compris, colonne 240 à 300 px) et s'ouvre en tiroir fixé au bord
+  gauche en dessous (`.detail.sheet`, fermeture ✕ ou fond). Hook `src/lib/useMedia.js` (`useMediaQuery`).
+  Contrôle avec Playwright à 390×844 et 844×390 (émulation iPhone 13) : aucun débordement horizontal.
 
