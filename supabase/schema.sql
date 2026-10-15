@@ -3,7 +3,7 @@
 -- service_role (tools/publish.py) et, plus tard, au tableau de bord /admin.
 
 create table if not exists public.subjects (
-  id        text primary key,           -- slug latin : sira, tajwid, aqida, nahw, fiqh
+  id        text primary key,           -- slug latin : adab, sira, tajwid, aqida, nahw, fiqh
   name_ar   text not null,
   position  integer not null default 0
 );
@@ -48,6 +48,7 @@ create table if not exists public.chapters (
 
 -- Matières de départ (CLAUDE.md). L'ordre d'affichage suit position.
 insert into public.subjects (id, name_ar, position) values
+  ('adab',   'آداب الطلب',        0),
   ('sira',   'السيرة النبوية',    1),
   ('tajwid', 'التجويد',           2),
   ('aqida',  'التوحيد والعقيدة',  3),

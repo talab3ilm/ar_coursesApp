@@ -48,17 +48,20 @@ from align import add_timestamps  # noqa: E402
 
 # Nom de série dans meta.md (youtube : `series`, plateforme : `subject`) -> slug de subjects.id.
 SERIES_TO_SUBJECT = {
+    "آداب الطلب": "adab", "آداب طلب العلم": "adab",
     "التجويد": "tajwid", "تجويد القرآن": "tajwid",
     "السيرة النبوية": "sira", "السيرة": "sira",
     "الفقه": "fiqh",
     "التوحيد والعقيدة": "aqida", "التوحيد و العقيدة": "aqida", "العقيدة": "aqida", "التوحيد": "aqida",
     "النحو": "nahw",
 }
-# Nom affiché de chaque matière (= subjects.name_ar dans supabase/schema.sql).
-SUBJECT_NAMES = {
-    "sira": "السيرة النبوية", "fiqh": "الفقه", "tajwid": "التجويد",
-    "aqida": "التوحيد والعقيدة", "nahw": "النحو",
+# Matières du site : slug -> (nom affiché, ordre). Upsert dans `subjects` à chaque publication,
+# même contenu que supabase/schema.sql.
+SUBJECTS = {
+    "adab": ("آداب الطلب", 0), "sira": ("السيرة النبوية", 1), "tajwid": ("التجويد", 2),
+    "aqida": ("التوحيد والعقيدة", 3), "nahw": ("النحو", 4), "fiqh": ("الفقه", 5),
 }
+SUBJECT_NAMES = {k: v[0] for k, v in SUBJECTS.items()}
 # Fichiers relus (convention « -ok ») : resume-ok.md, anki-ok.tsv (repli : anki.tsv), mindmap-ok.json
 # (jamais mindmap.json, brouillon non relu). Dans Storage ils sont renommés resume.md, anki.tsv, mindmap.json.
 ANKI_CANDIDATES = ("anki-ok.tsv", "anki.tsv")
@@ -210,14 +213,18 @@ def youtube_course(folder: Path, meta: dict, skipped: list[str]) -> Course | Non
                     youtube_url=meta.get("url") or f"https://www.youtube.com/watch?v={meta['id']}")
     m = TRAILING_NUMBER.search(title) or LESSON_NUMBER.search(title)
     course.number = int(m.group(1)) if m else None
-    # Titre affiché : « matière - السنة الأولى - NN », jamais le titre YouTube brut (noms d'enseignants,
-    # « Ep »…). Le titre brut reste dans meta.md pour la traçabilité et le numéro de leçon.
-    name = SUBJECT_NAMES[subject]
-    course.title = f"{name} - السنة الأولى - {course.number:02d}" if course.number else name
     read_common(course, folder)
+    return course
+
+
+def display_title(course: Course) -> None:
+    """Titre affiché : « matière - السنة الأولى - NN », jamais le titre YouTube brut (noms d'enseignants,
+    « Ep »…). Le titre brut reste dans meta.md pour la traçabilité et le numéro de leçon. Appelé après la
+    numérotation (scan_vault), car un titre sans numéro en reçoit un par ordre de date."""
+    name = SUBJECT_NAMES[course.subject_id]
+    course.title = f"{name} - السنة الأولى - {course.number:02d}" if course.number else name
     if course.mindmap is not None:
         course.mindmap["t"] = course.title  # la racine de la carte reprend le titre YouTube brut
-    return course
 
 
 def academy_course(folder: Path, meta: dict, skipped: list[str]) -> Course | None:
@@ -288,6 +295,9 @@ def scan_vault(vault: Path, skipped: list[str]) -> list[Course]:
                 while nxt in used:
                     nxt += 1
                 c.number, nxt = nxt, nxt + 1
+    for c in courses:
+        if not c.id.startswith("academy-"):
+            display_title(c)
     return courses
 
 
@@ -410,6 +420,10 @@ def finalize(course: Course, youtube_chapters: list[dict] | None) -> None:
 
 # ---------- publication ----------
 
+def publish_subjects(sb: Supabase) -> None:
+    sb.upsert("subjects", [{"id": k, "name_ar": n, "position": p} for k, (n, p) in SUBJECTS.items()], "id")
+
+
 def publish(sb: Supabase, course: Course) -> None:
     sb.upsert("courses", [course.row()], "id")
     for path, dst in storage_files(course.folder):
@@ -467,6 +481,7 @@ def main() -> int:
         return 0
 
     sb = connect(args.env_file)
+    publish_subjects(sb)
     existing = {r["id"]: r for r in sb.select("courses", "select=id,managed_by,published")}
     for c in courses:
         if existing.get(c.id, {}).get("managed_by") == "manual":
