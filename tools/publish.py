@@ -86,6 +86,7 @@ TASHKEEL = re.compile(r"[ؐ-ًؚ-ٰٟۖ-ۭـ]")
 TIMESTAMP_HEADING = re.compile(r"^#{1,6}\s+(.*?)\s*\[(\d{1,2}):(\d{2})(?::(\d{2}))?\]\s*$")
 # Numéro de leçon en fin de titre : « Ep 01 », « - 01 », « الدرس 3 », ou simplement « … 01 ».
 TRAILING_NUMBER = re.compile(r"(?:\bEp\.?|[-–]|الدرس|الحلقة)?\s*0*(\d{1,3})\s*$", re.IGNORECASE)
+LESSON_NUMBER = re.compile(r"الدرس\s*\[?\s*0*(\d{1,3})\s*\]?")   # « الدرس [01] النحو » : numéro au milieu du titre
 
 
 @dataclass
@@ -207,7 +208,7 @@ def youtube_course(folder: Path, meta: dict, skipped: list[str]) -> Course | Non
                     teacher=None if speaker == title else speaker,  # le pipeline recopie parfois le titre
                     date=meta.get("date") or None, duration=meta.get("duration") or None,
                     youtube_url=meta.get("url") or f"https://www.youtube.com/watch?v={meta['id']}")
-    m = TRAILING_NUMBER.search(title)
+    m = TRAILING_NUMBER.search(title) or LESSON_NUMBER.search(title)
     course.number = int(m.group(1)) if m else None
     # Titre affiché : « matière - السنة الأولى - NN », jamais le titre YouTube brut (noms d'enseignants,
     # « Ep »…). Le titre brut reste dans meta.md pour la traçabilité et le numéro de leçon.
@@ -271,6 +272,12 @@ def scan_vault(vault: Path, skipped: list[str]) -> list[Course]:
             if builder is youtube_course and course.number is not None:
                 course.date = dates.get((course.subject_id, course.number), course.date)
             courses.append(course)
+    # Le dossier youtube est la source publiée ; le dossier academy (documents officiels) n'est publié
+    # que s'il n'existe aucun cours youtube pour la même matière et le même numéro de leçon.
+    youtube_keys = {(c.subject_id, c.number) for c in courses if not c.id.startswith("academy-") and c.number}
+    for c in [c for c in courses if c.id.startswith("academy-") and (c.subject_id, c.number) in youtube_keys]:
+        skipped.append(f"{c.folder.name} : doublon du cours youtube {c.subject_id} n°{c.number}, ignoré")
+        courses.remove(c)
     # Numéro manquant : ordre des dates au sein de la matière.
     for subject in {c.subject_id for c in courses}:
         group = sorted((c for c in courses if c.subject_id == subject), key=lambda c: (c.date or "", c.id))
