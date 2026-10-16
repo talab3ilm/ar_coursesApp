@@ -54,12 +54,13 @@ SERIES_TO_SUBJECT = {
     "الفقه": "fiqh",
     "التوحيد والعقيدة": "aqida", "التوحيد و العقيدة": "aqida", "العقيدة": "aqida", "التوحيد": "aqida",
     "النحو": "nahw",
+    "التزكية": "tazkiya", "التزكية والأخلاق": "tazkiya",
 }
 # Matières du site : slug -> (nom affiché, ordre). Upsert dans `subjects` à chaque publication,
 # même contenu que supabase/schema.sql.
 SUBJECTS = {
     "adab": ("آداب الطلب", 0), "sira": ("السيرة النبوية", 1), "tajwid": ("التجويد", 2),
-    "aqida": ("التوحيد والعقيدة", 3), "nahw": ("النحو", 4), "fiqh": ("الفقه", 5),
+    "aqida": ("التوحيد والعقيدة", 3), "nahw": ("النحو", 4), "tazkiya": ("التزكية", 5), "fiqh": ("الفقه", 6),
 }
 SUBJECT_NAMES = {k: v[0] for k, v in SUBJECTS.items()}
 # Fichiers relus (convention « -ok ») : resume-ok.md, anki-ok.tsv (repli : anki.tsv), mindmap-ok.json
