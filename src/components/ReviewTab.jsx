@@ -38,7 +38,7 @@ function Progress({ cards }) {
       </div>
       <p className="small muted">
         {counts.map((n, box) => (
-          <span key={box} className={`box-stat b${box}`}>
+          <span key={box} className="box-stat">
             <b>{BOX_LABELS[box]}</b> {n}
             {n > 0 && nextDue[box] !== null && <i> · {dueLabel(nextDue[box])}</i>}
           </span>
