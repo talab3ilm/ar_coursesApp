@@ -84,6 +84,26 @@ export function boxCounts(guids) {
   return counts
 }
 
+/** Prochaine échéance par boîte (ms) pour un jeu de cartes, null si la boîte est vide. */
+export function boxNextDue(guids) {
+  const due = Array(MAX_BOX + 1).fill(null)
+  guids.forEach((g) => {
+    const c = cardState(g)
+    if (c.box > 0 && (due[c.box] === null || c.due < due[c.box])) due[c.box] = c.due
+  })
+  return due
+}
+
+/** « الآن », « غدا », « بعد 3 أيام »… à partir d'une échéance en ms. */
+export function dueLabel(due) {
+  const days = Math.ceil((due - Date.now()) / DAY)
+  if (days <= 0) return 'الآن'
+  if (days === 1) return 'غدا'
+  if (days === 2) return 'بعد يومين'
+  if (days <= 10) return `بعد ${days} أيام`
+  return `بعد ${days} يوما`
+}
+
 /** Nombre de cartes suivies (vues au moins une fois). */
 export function trackedCount() {
   return Object.keys(state.cards).length

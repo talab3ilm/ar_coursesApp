@@ -1,6 +1,6 @@
 import { useMemo, useState, useSyncExternalStore } from 'react'
 import { Link } from 'react-router-dom'
-import { MAX_BOX, answer, boxCounts, cardState, getSnapshot, isDue, needsExportReminder, resetCourse, subscribe } from '../lib/progress'
+import { MAX_BOX, answer, boxCounts, boxNextDue, cardState, dueLabel, getSnapshot, isDue, needsExportReminder, resetCourse, subscribe } from '../lib/progress'
 import { ProgressWarning } from '../pages/Progress.jsx'
 import { shuffle } from '../lib/arabic'
 import { withQuran } from '../lib/quran.jsx'
@@ -29,6 +29,7 @@ function distractors(card, cards, n = 3) {
 function Progress({ cards }) {
   const guids = cards.map((c) => c.guid)
   const counts = boxCounts(guids)
+  const nextDue = boxNextDue(guids) // prochaine carte à revoir dans chaque boîte
   const total = guids.length || 1
   return (
     <div className="progress">
@@ -37,8 +38,9 @@ function Progress({ cards }) {
       </div>
       <p className="small muted">
         {counts.map((n, box) => (
-          <span key={box}>
-            {BOX_LABELS[box]} {n}
+          <span key={box} className={`box-stat b${box}`}>
+            <b>{BOX_LABELS[box]}</b> {n}
+            {n > 0 && nextDue[box] !== null && <i> · {dueLabel(nextDue[box])}</i>}
           </span>
         ))}
       </p>

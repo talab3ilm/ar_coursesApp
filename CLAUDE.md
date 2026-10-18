@@ -326,4 +326,5 @@ traitements longs délégués à des sous-agents en arrière-plan.
 - Leitner (2026-10-18, demande de l'utilisateur) : une carte nouvelle sue va directement en boîte 2 (3 jours),
   une carte ratée en boîte 1 (1 jour) ; avant, les deux réponses menaient en boîte 1 et la barre se colorait
   pareil. Intervalles inchangés : 0, 1, 3, 7, 14, 30 jours.
+- Révision (2026-10-18) : sous la barre, chaque boîte non vide indique l'échéance de sa prochaine carte (« الآن », « غدا », « بعد N أيام »), `boxNextDue` et `dueLabel` dans `progress.js`.
 

@@ -176,6 +176,8 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .progress .b4 { background: var(--b1); }
 .progress .b5 { background: var(--accent); }
 .progress p { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0 0 12px; }
+.box-stat b { font-weight: 600; }
+.box-stat i { font-style: normal; color: var(--accent); }
 .flashcard {
   border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; margin: 12px 0;
   background: color-mix(in srgb, var(--accent) 4%, var(--surface));
