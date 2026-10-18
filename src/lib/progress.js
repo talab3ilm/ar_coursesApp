@@ -1,5 +1,6 @@
 // Progression locale (localStorage), par carte, identifiée par son guid stable.
-// Boîtes de Leitner 1..5 ; une carte « sue » monte d'une boîte, une carte ratée revient en 1.
+// Boîtes de Leitner 1..5 ; la boîte 0 est l'état « jamais vue ». Une carte sue monte d'une boîte (une
+// carte nouvelle sue va directement en 2, comme si elle partait de la boîte 1) ; une carte ratée revient en 1.
 // Export / import JSON : le fichier est la seule sauvegarde durable (pas de compte).
 
 const KEY = 'ar_coursesApp.progress.v1'
@@ -50,7 +51,7 @@ export function cardState(guid) {
 /** Enregistre une réponse. known = true si l'étudiant connaissait la carte. */
 export function answer(guid, known) {
   const prev = cardState(guid)
-  const box = known ? Math.min(prev.box + 1, MAX_BOX) : 1
+  const box = known ? Math.min(Math.max(prev.box, 1) + 1, MAX_BOX) : 1
   state = {
     ...state,
     cards: { ...state.cards, [guid]: { box, due: Date.now() + INTERVAL_DAYS[box] * DAY, seen: prev.seen + 1 } },

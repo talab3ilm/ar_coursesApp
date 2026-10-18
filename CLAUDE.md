@@ -323,3 +323,7 @@ traitements longs délégués à des sous-agents en arrière-plan.
 - Ordre des matières (2026-10-14, demande de l'utilisateur) : sira, tajwid, aqida, nahw, fiqh, sarf
   (`subjects.position`, mis à jour en base et dans le seed de `schema.sql`).
 - Matière الصرف retirée (2026-10-14, demande de l'utilisateur) : ligne supprimée de `subjects`, du seed et de `publish.py`.
+- Leitner (2026-10-18, demande de l'utilisateur) : une carte nouvelle sue va directement en boîte 2 (3 jours),
+  une carte ratée en boîte 1 (1 jour) ; avant, les deux réponses menaient en boîte 1 et la barre se colorait
+  pareil. Intervalles inchangés : 0, 1, 3, 7, 14, 30 jours.
+
