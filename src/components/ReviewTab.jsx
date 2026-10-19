@@ -4,6 +4,7 @@ import { MAX_BOX, answer, boxCounts, boxNextDue, cardState, dueLabel, getSnapsho
 import { ProgressWarning } from '../pages/Progress.jsx'
 import { shuffle } from '../lib/arabic'
 import { withQuran } from '../lib/quran.jsx'
+import SuggestButton from './SuggestButton.jsx'
 
 const BOX_LABELS = ['جديدة', 'صندوق 1', 'صندوق 2', 'صندوق 3', 'صندوق 4', 'محفوظة']
 
@@ -48,7 +49,7 @@ function Progress({ cards }) {
   )
 }
 
-export default function ReviewTab({ cards }) {
+export default function ReviewTab({ courseId, cards }) {
   useSyncExternalStore(subscribe, getSnapshot)
   const [mode, setMode] = useState('flip') // flip | quiz
   const [all, setAll] = useState(false)
@@ -144,6 +145,9 @@ export default function ReviewTab({ cards }) {
                   لم أعرفها
                 </button>
               </div>
+              <p className="suggest-row">
+                <SuggestButton courseId={courseId} tab="review" location={card.guid} context={card.question.slice(0, 60)} original={`${card.question}\n---\n${card.answer}`} label="اقترح تصحيحا للبطاقة" />
+              </p>
             </>
           )}
 

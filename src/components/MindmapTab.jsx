@@ -1,5 +1,6 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useMediaQuery } from '../lib/useMedia'
+import SuggestButton from './SuggestButton.jsx'
 import { matches } from '../lib/arabic'
 import { withQuran } from '../lib/quran.jsx'
 
@@ -82,7 +83,15 @@ function QuestionCard({ q, a }) {
   )
 }
 
-function Detail({ node, onSelect, rootLabel, onClose }) {
+/** Texte d'un nœud tel qu'il sera montré au relecteur : titre, contenus, questions. */
+function nodeSource(node) {
+  const lines = [node.n ? `${node.n}. ${node.t}` : node.t]
+  node.d.forEach(([tag, text, src]) => lines.push(`- [${tag}${src ? ` ${src}` : ''}] ${text}`))
+  node.q.forEach(([q, a]) => lines.push(`- س: ${q}\n  ج: ${a}`))
+  return lines.join('\n')
+}
+
+function Detail({ node, onSelect, rootLabel, onClose, courseId }) {
   const empty = node.d.length === 0 && node.q.length === 0
   return (
     <aside className={`detail ${onClose ? 'sheet' : ''}`} aria-live="polite">
@@ -118,6 +127,11 @@ function Detail({ node, onSelect, rootLabel, onClose }) {
       {node.q.map(([q, a], i) => (
         <QuestionCard key={i} q={q} a={a} />
       ))}
+      {courseId && (
+        <p className="suggest-row">
+          <SuggestButton courseId={courseId} tab="map" location={[...node.path, node.t].join(SEP)} original={nodeSource(node)} />
+        </p>
+      )}
       {node.kids.length > 0 && (
         <div className="kidsnav">
           {node.kids.map((k) => (
@@ -132,7 +146,7 @@ function Detail({ node, onSelect, rootLabel, onClose }) {
   )
 }
 
-export default function MindmapTab({ tree, rootLabel = '' }) {
+export default function MindmapTab({ tree, rootLabel = '', courseId }) {
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState(null)
   const [openedAll, setOpenedAll] = useState(false)
@@ -267,11 +281,11 @@ export default function MindmapTab({ tree, rootLabel = '' }) {
           selected !== null && (
             <>
               <div className="sheet-backdrop" onClick={() => setSelected(null)} />
-              <Detail node={current} onSelect={setSelected} rootLabel={rootLabel} onClose={() => setSelected(null)} />
+              <Detail node={current} onSelect={setSelected} rootLabel={rootLabel} onClose={() => setSelected(null)} courseId={courseId} />
             </>
           )
         ) : (
-          <Detail node={current} onSelect={setSelected} rootLabel={rootLabel} />
+          <Detail node={current} onSelect={setSelected} rootLabel={rootLabel} courseId={courseId} />
         )}
       </div>
     </div>

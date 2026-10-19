@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
-import { fetchCourse } from '../lib/api'
+import { appliedSuggestions, fetchCourse } from '../lib/api'
 import { youtubeId } from '../lib/arabic'
 import { rememberCourse } from '../lib/progress'
 import { ErrorBox, Loading } from '../components/Loading.jsx'
@@ -26,11 +26,11 @@ export default function Course() {
 
   useEffect(() => {
     let cancelled = false
-    fetchCourse(id)
-      .then((course) => {
+    Promise.all([fetchCourse(id), appliedSuggestions(id)])
+      .then(([course, applied]) => {
         if (cancelled) return
         if (course) rememberCourse(course.id)
-        setLoaded({ id, course })
+        setLoaded({ id, course: course && { ...course, applied } })
       })
       .catch((error) => !cancelled && setLoaded({ id, error }))
     return () => {
@@ -80,6 +80,7 @@ export default function Course() {
           {course.date && <span>{course.date}</span>}
           {course.duration && <span>{course.duration}</span>}
           <span>{course.cards.length} بطاقة</span>
+          {course.applied > 0 && <span title="اقتراحات من الطلبة طُبّقت على هذا الدرس">✎ {course.applied} تصحيح من الطلبة</span>}
         </p>
       </header>
 
@@ -101,11 +102,15 @@ export default function Course() {
         <PlayerPanel videoId={videoId} startAt={playing} playerRef={playerRef} onClose={() => setPlaying(null)} />
       )}
 
+      <p className="contrib-note small muted">
+        هذا المحتوى من إعداد الطلبة وقد يحتوي أخطاء. لاحظت خطأ أو لديك إضافة؟ استعمل زر «اقترح تصحيحا» في كل جزء.{' '}
+        <Link to="/contribute">كيف تساهم؟</Link>
+      </p>
       <section className="panel" role="tabpanel">
-        {tab === 'summary' && <SummaryTab markdown={course.summary_md} videoId={videoId} chapters={course.chapters} onSeek={seek} />}
+        {tab === 'summary' && <SummaryTab courseId={course.id} markdown={course.summary_md} videoId={videoId} chapters={course.chapters} onSeek={seek} />}
         {tab === 'review' && <ReviewTab courseId={course.id} cards={course.cards} />}
         {tab === 'map' && (
-          <MindmapTab tree={course.mindmap} rootLabel={`الدرس ${course.number ?? ''} · ${course.title}`} />
+          <MindmapTab tree={course.mindmap} rootLabel={`الدرس ${course.number ?? ''} · ${course.title}`} courseId={course.id} />
         )}
       </section>
     </>

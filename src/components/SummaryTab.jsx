@@ -5,6 +5,7 @@ import remarkBreaks from 'remark-breaks' // un retour à la ligne simple = <br> 
 import { formatSeconds, parseTimestamp } from '../lib/arabic'
 import { SHOW_TIMESTAMPS } from '../config'
 import { remarkQuran } from '../lib/quran.jsx'
+import SuggestButton from './SuggestButton.jsx'
 
 // Marqueur [mm:ss] ou [h:mm:ss] du pipeline -> lien interne #t=<secondes>, rendu en bouton.
 const MARKER = /\[(\d{1,2}:\d{2}(?::\d{2})?)\]/g
@@ -52,7 +53,13 @@ function splitSections(md) {
   })
 }
 
-export default function SummaryTab({ markdown, videoId, chapters = [], onSeek }) {
+/** Markdown complet d'une section (texte d'introduction + sous-sections), tel qu'il est en base. */
+function sectionSource(s) {
+  const subs = s.subs.map((sub) => `### ${sub.title}\n${sub.body}`)
+  return [s.body, ...subs].filter((t) => t.trim()).join('\n\n')
+}
+
+export default function SummaryTab({ courseId, markdown, videoId, chapters = [], onSeek }) {
   const sections = useMemo(() => splitSections((markdown ?? '').replace(FRONTMATTER, '')), [markdown])
   const [open, setOpen] = useState(() => new Set())
 
@@ -159,6 +166,11 @@ export default function SummaryTab({ markdown, videoId, chapters = [], onSeek })
                     </section>
                   )
                 })}
+                {courseId && (
+                  <p className="suggest-row">
+                    <SuggestButton courseId={courseId} tab="summary" location={s.title} original={sectionSource(s)} />
+                  </p>
+                )}
               </div>
             )}
           </section>

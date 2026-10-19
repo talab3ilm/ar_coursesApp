@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { getSession, isAdmin, onAuth, signIn, signOut } from '../lib/admin'
+import { getSession, isAdmin, isReviewer, onAuth, signIn, signOut } from '../lib/admin'
 import { Loading } from '../components/Loading.jsx'
 import Dashboard from '../admin/Dashboard.jsx'
+import Suggestions from '../admin/Suggestions.jsx'
 
 /** /admin : connexion Supabase Auth (e-mail + mot de passe), puis vérification de la liste blanche. */
 export default function Admin() {
@@ -21,7 +22,7 @@ export default function Admin() {
     if (!session) return
     const userId = session.user.id
     isAdmin()
-      .then((value) => setAdminFor({ userId, value }))
+      .then(async (value) => setAdminFor({ userId, value: value ? 'admin' : (await isReviewer().catch(() => false)) ? 'reviewer' : false }))
       .catch((e) => setError(e.message))
   }, [session])
   const admin = session && adminFor?.userId === session.user.id ? adminFor.value : null
@@ -58,10 +59,26 @@ export default function Admin() {
   }
 
   if (admin === null) return <Loading />
+  if (admin === 'reviewer') {
+    return (
+      <section className="admin">
+        <header className="admin-head">
+          <h1>مراجعة الاقتراحات</h1>
+          <span className="small muted">
+            {session.user.email} ·{' '}
+            <button className="link" onClick={signOut}>
+              خروج
+            </button>
+          </span>
+        </header>
+        <Suggestions admin={false} email={session.user.email} />
+      </section>
+    )
+  }
   if (admin === false) {
     return (
       <div className="notice notice-error">
-        <p>هذا الحساب ({session.user.email}) ليس في قائمة المشرفين.</p>
+        <p>هذا الحساب ({session.user.email}) ليس في قائمة المشرفين ولا المراجعين.</p>
         <button className="btn btn-ghost" onClick={signOut}>
           خروج
         </button>

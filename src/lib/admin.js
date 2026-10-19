@@ -187,3 +187,87 @@ export function applyHeadingTimes(md, times) {
 
 export const updateSummary = (id, summary_md) =>
   run(supabase.from('courses').update({ summary_md, updated_at: new Date().toISOString() }).eq('id', id))
+
+// ---------- suggestions des élèves et relecteurs ----------
+/** Vrai si l'utilisateur connecté est relecteur (ou admin). */
+export async function isReviewer() {
+  const { data, error } = await supabase.rpc('is_reviewer')
+  if (error) throw new Error(error.message)
+  return data === true
+}
+
+export const listSuggestions = (statuses) =>
+  run(
+    supabase
+      .from('suggestions')
+      .select('id, course_id, tab, location, kind, original, proposed, author, status, fix, note, created_at, reviewed_at, reviewed_by, courses(title)')
+      .in('status', statuses)
+      .order('created_at', { ascending: false }),
+  )
+
+export const updateSuggestion = (id, fields, email) =>
+  run(supabase.from('suggestions').update({ ...fields, reviewed_at: new Date().toISOString(), reviewed_by: email ?? null }).eq('id', id))
+
+export const deleteSuggestion = (id) => run(supabase.from('suggestions').delete().eq('id', id))
+
+export const listReviewers = () => run(supabase.from('reviewers').select('email').order('email'))
+export const addReviewer = (email) => run(supabase.from('reviewers').insert({ email: email.trim().toLowerCase() }))
+export const removeReviewer = (email) => run(supabase.from('reviewers').delete().eq('email', email))
+
+const HEADING_MARK = /\s*\[\d{1,2}:\d{2}(?::\d{2})?\]\s*$/
+const normTitle = (t) => t.replace(HEADING_MARK, '').trim()
+
+/**
+ * Remplace le corps d'une section de niveau 2 (titre = `location`) par `fix`, en gardant la ligne de titre
+ * (et son horodatage). Renvoie null si le titre n'est pas trouvé.
+ */
+export function replaceSection(md, location, fix) {
+  const lines = md.split('\n')
+  const start = lines.findIndex((l) => /^##\s+/.test(l) && normTitle(l.replace(/^##\s+/, '')) === normTitle(location))
+  if (start < 0) return null
+  let end = lines.length
+  for (let i = start + 1; i < lines.length; i++) {
+    if (/^##\s+/.test(lines[i])) {
+      end = i
+      break
+    }
+  }
+  const body = fix.replace(/\s+$/, '')
+  return [...lines.slice(0, start + 1), '', body, '', ...lines.slice(end)].join('\n').replace(/\n{3,}/g, '\n\n')
+}
+
+/** Fichier anki-ok.tsv reconstruit depuis la base (question, réponse, tags, guid). */
+export async function cardsAsTsv(courseId) {
+  const cards = await run(supabase.from('cards').select('guid, question, answer, tags, position').eq('course_id', courseId).order('position'))
+  const esc = (t) => String(t ?? '').replace(/\t/g, ' ').replace(/\r?\n/g, '<br>')
+  return ['# question\tréponse\ttags\tguid', ...cards.map((c) => `${esc(c.question)}\t${esc(c.answer)}\t${(c.tags ?? []).join(' ')}\t${c.guid}`)].join('\n') + '\n'
+}
+
+/**
+ * Applique une suggestion acceptée en base, passe le cours en `manual` (le CI ne l'écrase plus) et renvoie
+ * le fichier corrigé à remettre dans le vault : { name, text }. Carte mentale : pas d'application automatique.
+ */
+export async function applySuggestion(s, fix, email) {
+  if (s.tab === 'summary') {
+    const course = await run(supabase.from('courses').select('id, summary_md').eq('id', s.course_id).single())
+    const md = replaceSection(course.summary_md ?? '', s.location, fix)
+    if (md === null) throw new Error(`لم يُعثر على القسم « ${s.location} » في الملخّص.`)
+    await run(supabase.from('courses').update({ summary_md: md, managed_by: 'manual', updated_at: new Date().toISOString() }).eq('id', s.course_id))
+    await updateSuggestion(s.id, { status: 'applied', fix }, email)
+    return { name: 'resume-ok.md', text: md }
+  }
+  if (s.tab === 'review') {
+    let parsed
+    try {
+      parsed = JSON.parse(fix)
+    } catch {
+      throw new Error('صيغة التصحيح غير صالحة.')
+    }
+    await run(supabase.from('cards').update({ question: parsed.question, answer: parsed.answer }).eq('guid', s.location))
+    await run(supabase.from('courses').update({ managed_by: 'manual', updated_at: new Date().toISOString() }).eq('id', s.course_id))
+    await updateSuggestion(s.id, { status: 'applied', fix }, email)
+    return { name: 'anki-ok.tsv', text: await cardsAsTsv(s.course_id) }
+  }
+  await updateSuggestion(s.id, { status: 'applied', fix }, email)
+  return null
+}

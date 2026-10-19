@@ -31,7 +31,7 @@ export default function Layout() {
           التقدّم محفوظ في هذا المتصفح فقط. <Link to="/progress">صدّره</Link>
         </span>
         <span>
-          عمل طلابي مستقل، لا يمثّل الأكاديمية. <Link to="/about">عن الموقع</Link>
+          عمل طلابي مستقل، لا يمثّل الأكاديمية. <Link to="/contribute">كيف تساهم؟</Link> · <Link to="/about">عن الموقع</Link>
         </span>
       </footer>
     </div>

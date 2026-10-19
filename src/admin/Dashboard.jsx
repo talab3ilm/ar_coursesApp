@@ -3,6 +3,8 @@ import { listAllCourses, listSubjects } from '../lib/admin'
 import { ErrorBox, Loading } from '../components/Loading.jsx'
 import CourseForm from './CourseForm.jsx'
 import TypographySettings from './TypographySettings.jsx'
+import Suggestions from './Suggestions.jsx'
+import Reviewers from './Reviewers.jsx'
 
 /** Liste de tous les cours (publiés ou non) et accès au formulaire. */
 export default function Dashboard({ email, onSignOut }) {
@@ -54,6 +56,8 @@ export default function Dashboard({ email, onSignOut }) {
           </button>
         </span>
       </header>
+      <Suggestions admin email={email} />
+      <Reviewers />
       <TypographySettings />
       <div className="toolbar">
         <button className="btn" onClick={() => setEditing('new')}>

@@ -33,3 +33,16 @@ export async function fetchCourse(id) {
   ])
   return { ...course, subject_name: course.subjects?.name_ar ?? '', cards, chapters, mindmap: mindmap?.tree ?? null }
 }
+
+/** Nombre de suggestions d'élèves appliquées à un cours (0 si la table n'existe pas encore). */
+export async function appliedSuggestions(courseId) {
+  const { data, error } = await supabase.rpc('applied_suggestions', { p_course_id: courseId })
+  return error ? 0 : data ?? 0
+}
+
+/** Noms des contributeurs dont une suggestion a été appliquée. */
+export async function contributors() {
+  const { data, error } = await supabase.rpc('contributors')
+  return error ? [] : data ?? []
+}
+

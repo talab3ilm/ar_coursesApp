@@ -328,3 +328,23 @@ traitements longs délégués à des sous-agents en arrière-plan.
   pareil. Intervalles inchangés : 0, 1, 3, 7, 14, 30 jours.
 - Révision (2026-10-18) : sous la barre, chaque boîte non vide indique l'échéance de sa prochaine carte (« الآن », « غدا », « بعد N أيام »), `boxNextDue` et `dueLabel` dans `progress.js`.
 - CI (2026-10-19) : `runs-on: ubuntu-24.04` épinglé dans `publish.yml` (fin de l'avis « ubuntu-latest → Ubuntu 26 ») ; à faire évoluer volontairement.
+- Suggestions des élèves (2026-10-19, demande de l'utilisateur, trois volets) :
+  1. `supabase/suggestions.sql` (à exécuter après `admin.sql`) : table `suggestions` (cours, onglet, emplacement,
+     type, texte d'origine, proposition, auteur, statut new/reviewed/accepted/rejected/applied, `fix`, note),
+     table `reviewers` + `is_reviewer()`, fonctions publiques `applied_suggestions(course_id)` et
+     `contributors()`. `anon` : insertion seule. Bouton « ✎ اقترح تصحيحا » (`SuggestButton.jsx`, `lib/suggest.js`,
+     piège à robots, 20 s entre deux envois, nom mémorisé) sous chaque section du résumé, sous la réponse d'une
+     carte, dans le détail d'un nœud. Remarque en arabe sous les onglets du cours ; compteur « N تصحيح من الطلبة »
+     dans les métadonnées ; contributeurs cités sur « عن الموقع ».
+  2. Page `/contribute` « كيف تساهم » (3 étapes, captures `public/contrib-1.png` et `contrib-2.png` faites avec
+     Playwright sur l'aperçu local), liens dans le pied de page et « عن الموقع ».
+  3. `/admin` : section « اقتراحات الطلبة » (`admin/Suggestions.jsx`) en tête, filtres قيد المعالجة / المنتهية,
+     original et proposition côte à côte, éditeur du texte corrigé (section Markdown entière, ou question +
+     réponse pour une carte), « حفظ المراجعة », « قبول وتطبيق » (admin : `applySuggestion` remplace la section
+     dans `summary_md` ou la carte par guid, passe le cours en `manual`, propose le fichier `resume-ok.md` ou
+     `anki-ok.tsv` à remettre dans le vault ; carte mentale : marquage seul, correction à la main dans
+     `mindmap-ok.json`), « رفض », « حذف ». Rôle relecteur : compte Auth + e-mail dans `reviewers`
+     (panneau « المراجعون ») ; il ne voit que les suggestions et ne peut que préparer le texte.
+     Règle : le vault reste la source ; après application, remettre le fichier dans le vault puis repasser le
+     cours en `pipeline`, sinon il reste figé.
+
