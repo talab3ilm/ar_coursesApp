@@ -18,6 +18,7 @@ export default function Layout() {
             الرئيسية
           </NavLink>
           <NavLink to="/progress">التقدّم</NavLink>
+          <NavLink to="/contribute">ساهم</NavLink>
           <NavLink to="/about">عن الموقع</NavLink>
         </nav>
       </header>
