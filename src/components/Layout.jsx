@@ -28,12 +28,8 @@ export default function Layout() {
         </ErrorBoundary>
       </main>
       <footer className="footer">
-        <span>
-          التقدّم محفوظ في هذا المتصفح فقط. <Link to="/progress">صدّره</Link>
-        </span>
-        <span>
-          عمل طلابي مستقل، لا يمثّل الأكاديمية. <Link to="/contribute">كيف تساهم؟</Link> · <Link to="/about">عن الموقع</Link>
-        </span>
+        <span>التقدّم محفوظ في هذا المتصفح فقط.</span>
+        <span>عمل طلابي مستقل، لا يمثّل الأكاديمية.</span>
       </footer>
     </div>
   )
