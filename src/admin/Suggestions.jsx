@@ -48,7 +48,7 @@ function FixEditor({ s, fix, setFix }) {
   )
 }
 
-function Item({ s, admin, email, onChange }) {
+function Item({ s, admin, email, onChange, onResult }) {
   const [open, setOpen] = useState(false)
   const [fix, setFix] = useState(s.fix ?? (s.tab === 'review' ? '' : s.original))
   const [note, setNote] = useState(s.note ?? '')
@@ -59,7 +59,7 @@ function Item({ s, admin, email, onChange }) {
     setMsg(null)
     try {
       const r = await fn()
-      setMsg({ ok: true, text: okText, file: r ?? null })
+      onResult({ ok: true, text: okText, file: r ?? null, title: s.courses?.title ?? s.course_id })
       onChange()
     } catch (e) {
       setMsg({ ok: false, text: e.message })
@@ -169,6 +169,7 @@ export default function Suggestions({ admin, email }) {
   const [scope, setScope] = useState('open') // open | done
   const [rows, setRows] = useState(null)
   const [error, setError] = useState(null)
+  const [result, setResult] = useState(null) // dernier résultat d'action, gardé après rechargement de la liste
   const reload = () =>
     listSuggestions(scope === 'open' ? OPEN : ['accepted', 'rejected', 'applied'])
       .then(setRows)
@@ -192,6 +193,20 @@ export default function Suggestions({ admin, email }) {
         </div>
         {rows && <span className="small muted">{rows.length}</span>}
       </div>
+      {result && (
+        <p className={`notice ${result.ok ? 'ok' : 'ko'}`} role="status">
+          {result.title ? `${result.title} : ` : ''}
+          {result.text}{' '}
+          {result.file && (
+            <button className="link" onClick={() => download(result.file.name, result.file.text)}>
+              تنزيل {result.file.name}
+            </button>
+          )}{' '}
+          <button className="link" onClick={() => setResult(null)}>
+            إخفاء
+          </button>
+        </p>
+      )}
       {!rows ? (
         <Loading />
       ) : rows.length === 0 ? (
@@ -199,7 +214,7 @@ export default function Suggestions({ admin, email }) {
       ) : (
         <ul className="sugg-list">
           {rows.map((s) => (
-            <Item key={s.id + s.status} s={s} admin={admin} email={email} onChange={reload} />
+            <Item key={s.id + s.status} s={s} admin={admin} email={email} onChange={reload} onResult={setResult} />
           ))}
         </ul>
       )}
