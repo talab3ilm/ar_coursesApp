@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import ErrorBoundary from './ErrorBoundary.jsx'
+import ThemeToggle from './ThemeToggle.jsx'
 import { loadTypography } from '../lib/settings'
 
 export default function Layout() {
@@ -20,6 +21,7 @@ export default function Layout() {
           <NavLink to="/progress">التقدّم</NavLink>
           <NavLink to="/contribute">ساهم</NavLink>
           <NavLink to="/about">عن الموقع</NavLink>
+          <ThemeToggle />
         </nav>
       </header>
       <main className="shell">

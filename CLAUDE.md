@@ -347,4 +347,4 @@ traitements longs délégués à des sous-agents en arrière-plan.
      (panneau « المراجعون ») ; il ne voit que les suggestions et ne peut que préparer le texte.
      Règle : le vault reste la source ; après application, remettre le fichier dans le vault puis repasser le
      cours en `pipeline`, sinon il reste figé.
-
+- Thème (2026-10-19, demande de l'utilisateur) : bouton soleil / lune dans la barre du haut (`ThemeToggle.jsx`, `lib/theme.js`, clé `ar_coursesApp.theme`), appliqué avant le premier rendu par un script inline de `index.html` ; sans choix, le thème suit le système.

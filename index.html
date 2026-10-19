@@ -28,6 +28,13 @@
       rel="stylesheet"
     />
     <title>مراجعة الدروس</title>
+    <script>
+      // Thème choisi par l'élève appliqué avant le premier rendu, pour éviter un flash.
+      try {
+        var t = localStorage.getItem('ar_coursesApp.theme')
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>
