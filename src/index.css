@@ -342,9 +342,10 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
   :root { --lh-k: 0.88; }
   body { font-size: 16px; } /* évite le zoom automatique d'iOS sur les champs (< 16px) */
   .topbar { padding: 8px calc(12px + var(--safe-r)) 8px calc(12px + var(--safe-l)); }
-  .brand { font-size: 1.25rem; }
-  .topnav { gap: 10px; align-items: center; }
-  .topnav a { font-size: 0.95rem; padding: 6px 2px; }
+  .brand { font-size: 1.15rem; white-space: nowrap; }
+  .topnav { gap: 8px; align-items: center; }
+  .topnav a { font-size: 0.88rem; padding: 6px 0; white-space: nowrap; }
+  .theme-btn { width: 32px; height: 32px; flex: none; }
   .shell { padding: 12px calc(10px + var(--safe-r)) 40px calc(10px + var(--safe-l)); }
   .footer { padding-inline: calc(12px + var(--safe-r)) calc(12px + var(--safe-l)); }
   h1 { font-size: 1.55rem; }
