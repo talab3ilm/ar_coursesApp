@@ -29,6 +29,7 @@ Règles :
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import hashlib
 import json
 import os
@@ -246,6 +247,19 @@ def academy_course(folder: Path, meta: dict, skipped: list[str]) -> Course | Non
     return course
 
 
+# Calendrier de la première période (NextWork « النظام الأكاديمي ») : leçon N la semaine du lundi
+# 12/10/2026 + (N-1) semaines, chaque matière à son jour. Sert quand raw/academy/ n'a pas encore la leçon.
+PHASE1_START = dt.date(2026, 10, 12)
+PHASE1_LESSONS = 13
+WEEKDAY = {"sira": 0, "tajwid": 1, "aqida": 2, "nahw": 3, "tazkiya": 4, "fiqh": 5}
+
+
+def schedule_date(subject: str, number: int | None) -> str | None:
+    if subject not in WEEKDAY or not number or number > PHASE1_LESSONS:
+        return None
+    return (PHASE1_START + dt.timedelta(weeks=number - 1, days=WEEKDAY[subject])).isoformat()
+
+
 def platform_dates(vault: Path) -> dict[tuple[str, int], str]:
     """(matière, numéro de leçon) -> date de mise à disposition sur la plateforme, d'après
     tous les dossiers raw/academy/, publiables ou non. Sert de date d'affichage aux cours
@@ -278,7 +292,9 @@ def scan_vault(vault: Path, skipped: list[str]) -> list[Course]:
         course = builder(folder, meta, skipped)
         if course:
             if builder is youtube_course and course.number is not None:
-                course.date = dates.get((course.subject_id, course.number), course.date)
+                # date du calendrier des cours (plateforme, sinon emploi du temps), jamais celle de la vidéo
+                course.date = (dates.get((course.subject_id, course.number))
+                               or schedule_date(course.subject_id, course.number) or course.date)
             courses.append(course)
     # Le dossier youtube est la source publiée ; le dossier academy (documents officiels) n'est publié
     # que s'il n'existe aucun cours youtube pour la même matière et le même numéro de leçon.
