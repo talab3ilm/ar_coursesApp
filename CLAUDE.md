@@ -327,4 +327,4 @@ traitements longs délégués à des sous-agents en arrière-plan.
   une carte ratée en boîte 1 (1 jour) ; avant, les deux réponses menaient en boîte 1 et la barre se colorait
   pareil. Intervalles inchangés : 0, 1, 3, 7, 14, 30 jours.
 - Révision (2026-10-18) : sous la barre, chaque boîte non vide indique l'échéance de sa prochaine carte (« الآن », « غدا », « بعد N أيام »), `boxNextDue` et `dueLabel` dans `progress.js`.
-
+- CI (2026-10-19) : `runs-on: ubuntu-24.04` épinglé dans `publish.yml` (fin de l'avis « ubuntu-latest → Ubuntu 26 ») ; à faire évoluer volontairement.
