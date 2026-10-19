@@ -413,8 +413,11 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 
 /* Suggestions des élèves : bouton discret, fenêtre modale (feuille basse sur téléphone) */
 .suggest-row { margin: 10px 0 0; text-align: start; }
-.tbtn.suggest { color: var(--muted); border-style: dashed; }
-.tbtn.suggest:hover { color: var(--accent); border-color: var(--accent); }
+.tbtn.suggest {
+  color: var(--bg); background: var(--gold); border-color: var(--gold); font-weight: 700;
+  padding: 4px 14px; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+.tbtn.suggest:hover { filter: brightness(1.08); }
 .contrib-note { margin: 0 0 8px; }
 .modal-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); z-index: 40; }
 .modal {
