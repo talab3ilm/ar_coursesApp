@@ -1,14 +1,18 @@
 import { useEffect, useState } from 'react'
-import { getSession, isAdmin, isReviewer, onAuth, signIn, signOut } from '../lib/admin'
+import { getSession, isAdmin, isReviewer, onAuth, sendMagicLink, signOut, verifyCode } from '../lib/admin'
 import { Loading } from '../components/Loading.jsx'
 import Dashboard from '../admin/Dashboard.jsx'
 import Suggestions from '../admin/Suggestions.jsx'
 
-/** /admin : connexion Supabase Auth (e-mail + mot de passe), puis vérification de la liste blanche. */
+/**
+ * /admin : connexion Supabase Auth par lien magique (e-mail seul, sans mot de passe, pour ne pas ressembler à une
+ * page de hameçonnage), puis vérification de la liste blanche.
+ */
 export default function Admin() {
   const [session, setSession] = useState(undefined)
   const [adminFor, setAdminFor] = useState(null) // { userId, value } : résultat de la liste blanche
-  const [form, setForm] = useState({ email: '', password: '' })
+  const [form, setForm] = useState({ email: '', code: '' })
+  const [sent, setSent] = useState(false) // courriel envoyé : on attend le clic sur le lien ou le code
   const [error, setError] = useState(null)
   const [busy, setBusy] = useState(false)
 
@@ -31,8 +35,16 @@ export default function Admin() {
     e.preventDefault()
     setBusy(true)
     setError(null)
-    const { error } = await signIn(form.email.trim(), form.password)
-    if (error) setError('تعذّر تسجيل الدخول: تحقّق من البريد وكلمة المرور.')
+    const email = form.email.trim().toLowerCase()
+    if (!sent) {
+      const { error } = await sendMagicLink(email)
+      // Même message si l'adresse est inconnue : on ne révèle pas la liste des comptes.
+      if (error && !/signup|not allowed|not found/i.test(error.message)) setError(`تعذّر الإرسال: ${error.message}`)
+      else setSent(true)
+    } else {
+      const { error } = await verifyCode(email, form.code.trim())
+      if (error) setError('الرمز غير صحيح أو انتهت صلاحيته.')
+    }
     setBusy(false)
   }
 
@@ -42,18 +54,54 @@ export default function Admin() {
     return (
       <form className="login" onSubmit={submit}>
         <h1>لوحة الإدارة</h1>
+        <p className="small muted">للمشرفين والمراجعين فقط. يُرسل رابط الدخول إلى بريدك، بلا كلمة مرور.</p>
         <label>
           البريد الإلكتروني
-          <input type="email" dir="ltr" autoComplete="username" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+          <input
+            type="email"
+            dir="ltr"
+            autoComplete="email"
+            required
+            disabled={sent}
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+          />
         </label>
-        <label>
-          كلمة المرور
-          <input type="password" dir="ltr" autoComplete="current-password" required value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
-        </label>
+        {sent && (
+          <>
+            <p className="ok" role="status">
+              إن كان البريد مسجّلا فقد وصلته رسالة: افتح رابط الدخول فيها (من هذا الجهاز أو غيره).
+            </p>
+            <label>
+              أو أدخل الرمز المذكور في الرسالة
+              <input
+                dir="ltr"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                pattern="[0-9]{6,8}"
+                value={form.code}
+                onChange={(e) => setForm({ ...form, code: e.target.value })}
+              />
+            </label>
+          </>
+        )}
         {error && <p className="ko">{error}</p>}
-        <button className="btn" disabled={busy}>
-          دخول
+        <button className="btn" disabled={busy || (sent && !form.code.trim())}>
+          {sent ? 'دخول بالرمز' : 'إرسال رابط الدخول'}
         </button>
+        {sent && (
+          <button
+            type="button"
+            className="link"
+            onClick={() => {
+              setSent(false)
+              setForm({ ...form, code: '' })
+              setError(null)
+            }}
+          >
+            إعادة الإرسال أو تغيير البريد
+          </button>
+        )}
       </form>
     )
   }

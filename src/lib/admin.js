@@ -13,7 +13,18 @@ async function run(query) {
 }
 
 // ---------- auth ----------
-export const signIn = (email, password) => supabase.auth.signInWithPassword({ email, password })
+/**
+ * Connexion sans mot de passe : Supabase envoie un lien magique (et un code à six chiffres si le modèle
+ * de courriel l'inclut). `shouldCreateUser: false` : seuls les comptes déjà créés dans Supabase Auth reçoivent un courriel.
+ */
+export const sendMagicLink = (email) =>
+  supabase.auth.signInWithOtp({
+    email,
+    options: { shouldCreateUser: false, emailRedirectTo: `${window.location.origin}/admin` },
+  })
+
+/** Connexion avec le code à six chiffres du courriel, quand le lien ne peut pas être ouvert. */
+export const verifyCode = (email, token) => supabase.auth.verifyOtp({ email, token, type: 'email' })
 export const signOut = () => supabase.auth.signOut()
 export const getSession = async () => (await supabase.auth.getSession()).data.session
 export const onAuth = (cb) => supabase.auth.onAuthStateChange((_e, session) => cb(session)).data.subscription

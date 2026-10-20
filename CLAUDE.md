@@ -371,3 +371,14 @@ traitements longs délégués à des sous-agents en arrière-plan.
   <https://safebrowsing.google.com/safebrowsing/report_error/> et demande de réexamen dans Google Search Console
   (propriété vérifiée par balise `google-site-verification` à poser dans `index.html`). Solution durable : nom de domaine
   propre.
+- Connexion `/admin` par lien magique (2026-10-20, pour retirer le champ mot de passe qui a probablement déclenché le
+  signalement Safe Browsing) : `sendMagicLink(email)` (`signInWithOtp`, `shouldCreateUser: false`, retour sur
+  `/admin`) et `verifyCode(email, code)` (`verifyOtp` type `email`) dans `lib/admin.js`. Le formulaire n'a qu'un champ
+  e-mail ; après envoi, même message pour une adresse inconnue (pas d'énumération), champ facultatif pour le code du
+  courriel (8 chiffres dans ce projet). Flux implicite (défaut de supabase-js) : le lien marche depuis n'importe quel
+  navigateur. **Côté Supabase, à régler par l'utilisateur** : Authentication → URL Configuration → Site URL
+  `https://coursesapp-lac.vercel.app` et Redirect URLs `https://coursesapp-lac.vercel.app/**` (sinon le lien renvoie
+  sur `http://localhost:3000`, valeur constatée le 2026-10-20) ; pour que le code figure dans le courriel, ajouter
+  `{{ .Token }}` au modèle « Magic Link ». Le SMTP intégré de Supabase est limité à quelques envois par heure.
+  Vérifié avec Playwright : lien (jetons dans le fragment, retirés de l'URL, session conservée) et code.
+
