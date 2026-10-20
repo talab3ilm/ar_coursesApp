@@ -348,3 +348,14 @@ traitements longs délégués à des sous-agents en arrière-plan.
      Règle : le vault reste la source ; après application, remettre le fichier dans le vault puis repasser le
      cours en `pipeline`, sinon il reste figé.
 - Thème (2026-10-19, demande de l'utilisateur) : bouton soleil / lune dans la barre du haut (`ThemeToggle.jsx`, `lib/theme.js`, clé `ar_coursesApp.theme`), appliqué avant le premier rendu par un script inline de `index.html` ; sans choix, le thème suit le système.
+- Constructeur de carte mentale (2026-10-20, demande de l'utilisateur, « comme roadmap.sh mais simple », côté admin) :
+  `src/admin/MindmapBuilder.jsx`, ouvert depuis le formulaire d'un cours existant (« إنشاء / تحرير الخريطة في المنشئ »,
+  arbre chargé par `loadMindmap`). Plan à droite (sélection), éditeur du nœud à gauche : titre, numéro, explications
+  (tag, texte, source), questions ; boutons + فرع / + أخ / ↑ ↓ / إدخال / إخراج / حذف, raccourcis Enter (frère), Tab
+  (rentrer), Shift+Tab (sortir) dans le champ titre ; « إضافة فروع من نص » (une ligne = un fils, deux espaces = un
+  sous-niveau, « 1. » = numéro, « ? q = r » = question, « = … » = explication) ; aperçu avec `MindmapTab` (prop
+  `onPick` : un clic sur un nœud revient en édition dessus) ; brouillon automatique dans localStorage
+  (`ar_coursesApp.builder.<id>`, proposé à la réouverture) ; import JSON, « تنزيل mindmap-ok.json », « خريطة جديدة ».
+  « حفظ الخريطة في القاعدة » : upsert `mindmaps` + `mindmap.json` dans Storage ; le vault reste la source : remettre
+  `mindmap-ok.json` dans le dossier du cours (ou figer le cours en `manual`), sinon le prochain run CI le remplace s'il
+  trouve un `mindmap-ok.json` dans le vault. Vérifié avec Playwright (bureau 1280 et 390×844) sur un cours temporaire.

@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import {
-  deleteCourse, loadCourse, parseCards, parseChapters, parseMindmap, replaceCards, replaceChapters,
+  deleteCourse, loadCourse, loadMindmap, parseCards, parseChapters, parseMindmap, replaceCards, replaceChapters,
   saveCourse, saveMindmap, setManaged, setPublished, stripFrontmatter, uploadFile,
 } from '../lib/admin'
 import { ErrorBox, Loading } from '../components/Loading.jsx'
 import SummaryTab from '../components/SummaryTab.jsx'
 import MindmapTab from '../components/MindmapTab.jsx'
 import TimestampEditor from './TimestampEditor.jsx'
+import MindmapBuilder from './MindmapBuilder.jsx'
 import { youtubeId } from '../lib/arabic'
 
 const EMPTY = { id: '', subject_id: '', number: '', title: '', teacher: '', date: '', duration: '', youtube_url: '' }
@@ -17,6 +18,7 @@ export default function CourseForm({ id, subjects, onDone }) {
   const [fields, setFields] = useState({ ...EMPTY, subject_id: subjects[0]?.id ?? '' })
   const [files, setFiles] = useState({}) // { resume: {text, cards?}, anki: {text, cards}, mindmap: {text, tree} }
   const [preview, setPreview] = useState(null) // 'summary' | 'mindmap'
+  const [builder, setBuilder] = useState(null) // null fermé, sinon { tree } (arbre en base ou null)
   const [status, setStatus] = useState(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
@@ -223,6 +225,36 @@ export default function CourseForm({ id, subjects, onDone }) {
         <div className="panel preview">
           <MindmapTab tree={files.mindmap.tree} />
         </div>
+      )}
+
+      {course && !files.mindmap && (
+        <div className="row">
+          <button
+            className="tbtn"
+            disabled={busy}
+            onClick={async () => {
+              if (builder) return setBuilder(null)
+              try {
+                setBuilder({ tree: await loadMindmap(courseId) })
+              } catch (err) {
+                setStatus({ ok: false, text: err.message })
+              }
+            }}
+          >
+            {builder ? 'إغلاق المنشئ' : course.hasMindmap ? 'تحرير الخريطة في المنشئ' : 'إنشاء خريطة في المنشئ'}
+          </button>
+        </div>
+      )}
+      {builder && course && (
+        <MindmapBuilder
+          key={courseId}
+          courseId={courseId}
+          subjectId={course.subject_id}
+          title={course.title}
+          initialTree={builder.tree}
+          managedBy={course.managed_by}
+          onSaved={async () => setCourse(await loadCourse(courseId))}
+        />
       )}
 
       {course?.summary_md && !files.resume && (

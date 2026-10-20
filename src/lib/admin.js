@@ -69,6 +69,9 @@ export async function replaceChapters(courseId, chapters) {
   if (chapters.length) await run(supabase.from('chapters').insert(chapters))
 }
 
+export const loadMindmap = async (courseId) =>
+  (await run(supabase.from('mindmaps').select('tree').eq('course_id', courseId).maybeSingle()))?.tree ?? null
+
 export const saveMindmap = (courseId, tree) => run(supabase.from('mindmaps').upsert({ course_id: courseId, tree }))
 
 export async function uploadFile(subjectId, courseId, name, text, mime) {

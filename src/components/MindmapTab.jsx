@@ -146,7 +146,7 @@ function Detail({ node, onSelect, rootLabel, onClose, courseId }) {
   )
 }
 
-export default function MindmapTab({ tree, rootLabel = '', courseId }) {
+export default function MindmapTab({ tree, rootLabel = '', courseId, onPick }) {
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState(null)
   const [openedAll, setOpenedAll] = useState(false)
@@ -203,6 +203,7 @@ export default function MindmapTab({ tree, rootLabel = '', courseId }) {
   const setOpen = (n, open) => setOverrides((prev) => new Map(prev).set(n.id, open))
 
   const onNodeClick = (n) => {
+    if (onPick) return onPick([...n.path, n.t]) // mode constructeur : le clic sélectionne le nœud à éditer
     if (selected === n.id && n.kids.length) setOpen(n, !isOpen(n))
     else {
       setSelected(n.id)
