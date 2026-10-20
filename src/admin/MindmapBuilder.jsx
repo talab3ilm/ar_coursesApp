@@ -29,11 +29,14 @@ function updateAt(tree, path, fn) {
   return { ...tree, k: kids }
 }
 
-/** Nettoie un nœud pour le fichier : retire les clés vides, garde l'ordre t, n, d, q, k. */
+/**
+ * Nettoie un nœud pour le fichier : retire les clés vides, garde l'ordre t, n, d, q, k. Les numéros de page
+ * (références au fichier de cours de l'académie) sont supprimés : seules les sources « خ » et « + » sont conservées.
+ */
 function clean(n) {
   const out = { t: (n.t ?? '').trim() }
   if (n.n && String(n.n).trim()) out.n = String(n.n).trim()
-  const d = (n.d ?? []).filter((x) => x[1]?.trim()).map(([tag, text, src]) => [tag || 'def', text.trim(), String(src ?? '').trim()])
+  const d = (n.d ?? []).filter((x) => x[1]?.trim()).map(([tag, text, src]) => [tag || 'def', text.trim(), ['خ', '+'].includes(String(src ?? '').trim()) ? String(src).trim() : ''])
   if (d.length) out.d = d
   const q = (n.q ?? []).filter((x) => x[0]?.trim()).map(([a, b]) => [a.trim(), (b ?? '').trim()])
   if (q.length) out.q = q
@@ -448,7 +451,11 @@ export default function MindmapBuilder({ courseId, subjectId, title, initialTree
                   ))}
                 </div>
                 <textarea rows={2} value={d[1]} onChange={(e) => setRow('d', i, 1, e.target.value)} placeholder="النص" />
-                <input className="src" value={d[2] ?? ''} onChange={(e) => setRow('d', i, 2, e.target.value)} placeholder="ص" title="المصدر: رقم الصفحة، أو خ (الخريطة)، أو + (إضافة)" />
+                <select className="src" value={['خ', '+'].includes(d[2]) ? d[2] : ''} onChange={(e) => setRow('d', i, 2, e.target.value)} aria-label="المصدر" title="المصدر: لا شيء، أو خ (من خريطة الدرس)، أو + (إضافة ليست في الدرس)">
+                  <option value="">—</option>
+                  <option value="خ">خ</option>
+                  <option value="+">+</option>
+                </select>
                 <button className="tbtn" onClick={() => delRow('d', i)} aria-label="حذف">
                   ✕
                 </button>

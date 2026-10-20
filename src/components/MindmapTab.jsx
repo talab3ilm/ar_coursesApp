@@ -51,17 +51,17 @@ function Legend() {
           {label}
         </span>
       ))}
-      <span className="src">ص 4 = صفحة في ملف الدرس</span>
       <span className="src map">الخريطة = من خريطة الدرس</span>
       <span className="src add">إضافة = ليست في الدرس</span>
     </div>
   )
 }
 
+// Les numéros de page (références au fichier de cours de l'académie) ne sont jamais affichés : seules
+// les marques « خ » (carte du cours) et « + » (ajout) le sont.
 function SourceChip({ src }) {
   if (src === 'خ') return <span className="src map">الخريطة</span>
   if (src === '+') return <span className="src add">إضافة</span>
-  if (src) return <span className="src">ص {src}</span>
   return null
 }
 

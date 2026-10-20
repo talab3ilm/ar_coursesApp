@@ -498,7 +498,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
   font: inherit; font-family: var(--f-read); font-size: 1rem; line-height: 1.7; min-width: 0;
 }
 .row-item select { font-family: var(--f-body); font-size: 0.9rem; }
-.row-item input.src { text-align: center; }
+.row-item .src { text-align: center; }
 .quick { margin-top: 16px; border-top: 1px dashed var(--line); padding-top: 8px; }
 .quick summary { cursor: pointer; font-weight: 600; }
 .quick textarea { width: 100%; display: block; margin: 6px 0; white-space: pre; }

@@ -381,4 +381,12 @@ traitements longs délégués à des sous-agents en arrière-plan.
   sur `http://localhost:3000`, valeur constatée le 2026-10-20) ; pour que le code figure dans le courriel, ajouter
   `{{ .Token }}` au modèle « Magic Link ». Le SMTP intégré de Supabase est limité à quelques envois par heure.
   Vérifié avec Playwright : lien (jetons dans le fragment, retirés de l'URL, session conservée) et code.
+- Références de page retirées (2026-10-20, demande de l'utilisateur, avant l'envoi de la demande d'autorisation à
+  l'académie, `docs/demande-autorisation.md`) : le front n'affiche plus jamais une source numérique « ص N » (référence au
+  fichier de cours de l'académie), seules « خ » et « + » sont rendues ; légende sans l'entrée page ; dans le constructeur,
+  la source est un sélecteur — / خ / + et `clean()` vide toute source numérique à l'export. Seule la carte de la sira
+  (Y2iDJNpa7wg, celle d'Abdelali) en contenait : 95 pages, 10 « خ », 3 « + ». Les autres cartes ont des sources vides
+  (le générateur `draft_lesson.py --mode mindmap` écrit toujours ""). Restent à faire si l'utilisateur le demande :
+  nettoyer la carte de la sira en base et déposer `mindmap-ok.json` dans le vault (le dossier n'en a pas encore), et
+  statuer sur les 10 éléments « خ » repris de la carte de l'académie.
 
