@@ -386,7 +386,9 @@ traitements longs délégués à des sous-agents en arrière-plan.
   fichier de cours de l'académie), seules « خ » et « + » sont rendues ; légende sans l'entrée page ; dans le constructeur,
   la source est un sélecteur — / خ / + et `clean()` vide toute source numérique à l'export. Seule la carte de la sira
   (Y2iDJNpa7wg, celle d'Abdelali) en contenait : 95 pages, 10 « خ », 3 « + ». Les autres cartes ont des sources vides
-  (le générateur `draft_lesson.py --mode mindmap` écrit toujours ""). Restent à faire si l'utilisateur le demande :
-  nettoyer la carte de la sira en base et déposer `mindmap-ok.json` dans le vault (le dossier n'en a pas encore), et
+  (le générateur `draft_lesson.py --mode mindmap` écrit toujours ""). Le 2026-10-20, la carte de la sira
+  a été nettoyée en base et dans Storage (service_role, 95 pages → sources vides, 48 nœuds intacts) ; le fichier
+  nettoyé est dans `ar_audioToMd/temp/mindmap-ok-Y2iDJNpa7wg.json`, à déposer par l'utilisateur sous le nom
+  `mindmap-ok.json` dans le dossier de la sira du vault (`raw/youtube/2022-09-15-15-13 … [Y2iDJNpa7wg]/`). Reste à
   statuer sur les 10 éléments « خ » repris de la carte de l'académie.
 
