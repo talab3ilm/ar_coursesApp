@@ -6,9 +6,25 @@ Site de révision tenu par des étudiants, indépendant de l'académie : pour ch
 résumé, des cartes de révision tirées des decks Anki et une
 carte mentale dépliable. Interface en arabe, lecture de droite à gauche.
 
-Troisième dépôt du projet, aux côtés de `ar_audioToMd` (pipeline de production du contenu)
-et `secondBrain` (vault Obsidian, source de vérité). Les décisions d'architecture sont dans
-[CLAUDE.md](CLAUDE.md).
+## Ce que propose le site
+
+- **Accueil** : les matières en onglets, la liste des cours de chacune.
+- **Page de cours** : trois onglets, le résumé (sections dépliables), la révision (cartes à
+  retourner ou questions à choix multiples, boîtes de Leitner, échéances par boîte) et la carte
+  mentale (arbre dépliable, recherche insensible au tashkeel, détail de chaque nœud).
+- **Progression** : enregistrée dans le navigateur, sans compte ; export et import en JSON
+  pour ne rien perdre en changeant d'appareil.
+- **Thème** clair ou sombre, affichage pensé d'abord pour le téléphone.
+
+## Contribuer
+
+Chaque section du résumé, chaque carte et chaque nœud de la carte mentale porte un bouton
+« ✎ اقترح تصحيحا » : il ouvre un court formulaire, sans compte, pour signaler une erreur ou
+proposer une amélioration. La démarche est décrite sur la page
+[كيف تساهم](https://coursesapp-lac.vercel.app/contribute) du site. Les suggestions sont relues
+par les responsables avant toute publication, et les contributeurs sont cités sur la page
+« عن الموقع ». Pour un problème technique ou une demande de retrait, ouvrez une issue dans ce
+dépôt.
 
 ## Crédit
 
@@ -22,7 +38,7 @@ dépliable, la vue révision, la recherche et le schéma de nœud de la carte me
 
 - Front : React + Vite, hébergé sur Vercel.
 - Données : Supabase (Postgres, Storage, Auth), lues avec la clé `anon` sous RLS.
-- Alimentation : GitHub Actions + `tools/publish.py`, qui lit le vault et remplit Supabase.
+- Publication du contenu : script `tools/publish.py`, lancé par GitHub Actions, qui remplit Supabase.
 - Progression des étudiants : `localStorage`, exportable et importable en JSON.
 
 ## Développement
