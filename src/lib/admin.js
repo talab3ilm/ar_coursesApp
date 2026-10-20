@@ -69,6 +69,9 @@ export async function replaceChapters(courseId, chapters) {
   if (chapters.length) await run(supabase.from('chapters').insert(chapters))
 }
 
+/** Identifiants des cours qui ont une carte mentale en base. */
+export const listMindmapIds = async () => new Set((await run(supabase.from('mindmaps').select('course_id'))).map((r) => r.course_id))
+
 export const loadMindmap = async (courseId) =>
   (await run(supabase.from('mindmaps').select('tree').eq('course_id', courseId).maybeSingle()))?.tree ?? null
 

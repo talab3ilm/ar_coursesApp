@@ -361,3 +361,13 @@ traitements longs délégués à des sous-agents en arrière-plan.
   trouve un `mindmap-ok.json` dans le vault. Vérifié avec Playwright (bureau 1280 et 390×844) sur un cours temporaire.
   Types d'explication choisis par pastilles colorées (`.chip`, couleurs de `TAGS` exporté par `MindmapTab.jsx`) ;
   la carte de la sira (48 nœuds, sources parfois numériques) se recharge et se réexporte sans perte (vérifié).
+  Accès (2026-10-20) : colonne « الخريطة » dans la liste des cours de `/admin` (« + إنشاء الخريطة » en doré si aucune
+  carte, « تحرير الخريطة » sinon, `listMindmapIds`) qui ouvre le formulaire directement sur le constructeur (prop
+  `openBuilder` de `CourseForm`, défilement automatique).
+- Safe Browsing (2026-10-20) : Chrome affiche « Dangereux » sur coursesapp-lac.vercel.app ; le rapport de transparence
+  Google (`transparencyreport.google.com/transparencyreport/api/v3/safebrowsing/status?site=…`) donne le statut 3 (site
+  signalé, drapeau de hameçonnage probable, horodatage du 2026-10-19). Cause probable : formulaire e-mail + mot de passe
+  de `/admin` sur un sous-domaine vercel.app. À faire par l'utilisateur : signalement d'erreur
+  <https://safebrowsing.google.com/safebrowsing/report_error/> et demande de réexamen dans Google Search Console
+  (propriété vérifiée par balise `google-site-verification` à poser dans `index.html`). Solution durable : nom de domaine
+  propre.

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   deleteCourse, loadCourse, loadMindmap, parseCards, parseChapters, parseMindmap, replaceCards, replaceChapters,
   saveCourse, saveMindmap, setManaged, setPublished, stripFrontmatter, uploadFile,
@@ -13,12 +13,13 @@ import { youtubeId } from '../lib/arabic'
 const EMPTY = { id: '', subject_id: '', number: '', title: '', teacher: '', date: '', duration: '', youtube_url: '' }
 
 /** Formulaire d'un cours : métadonnées, dépôt des trois fichiers, aperçu, publication. */
-export default function CourseForm({ id, subjects, onDone }) {
+export default function CourseForm({ id, subjects, onDone, openBuilder = false }) {
   const [course, setCourse] = useState(id ? undefined : null)
   const [fields, setFields] = useState({ ...EMPTY, subject_id: subjects[0]?.id ?? '' })
   const [files, setFiles] = useState({}) // { resume: {text, cards?}, anki: {text, cards}, mindmap: {text, tree} }
   const [preview, setPreview] = useState(null) // 'summary' | 'mindmap'
   const [builder, setBuilder] = useState(null) // null fermé, sinon { tree } (arbre en base ou null)
+  const builderRef = useRef(null)
   const [status, setStatus] = useState(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
@@ -26,12 +27,16 @@ export default function CourseForm({ id, subjects, onDone }) {
   useEffect(() => {
     if (!id) return
     loadCourse(id)
-      .then((c) => {
+      .then(async (c) => {
         setCourse(c)
         if (c) setFields({ ...EMPTY, ...Object.fromEntries(Object.keys(EMPTY).map((k) => [k, c[k] ?? ''])) })
+        if (c && openBuilder) {
+          setBuilder({ tree: await loadMindmap(id) })
+          setTimeout(() => builderRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
+        }
       })
       .catch(setError)
-  }, [id])
+  }, [id, openBuilder])
 
   const set = (k) => (e) => setFields({ ...fields, [k]: e.target.value })
   const courseId = fields.id.trim()
@@ -228,9 +233,9 @@ export default function CourseForm({ id, subjects, onDone }) {
       )}
 
       {course && !files.mindmap && (
-        <div className="row">
+        <div className="row" ref={builderRef}>
           <button
-            className="tbtn"
+            className={builder ? 'btn btn-ghost' : 'btn'}
             disabled={busy}
             onClick={async () => {
               if (builder) return setBuilder(null)
@@ -241,7 +246,7 @@ export default function CourseForm({ id, subjects, onDone }) {
               }
             }}
           >
-            {builder ? 'إغلاق المنشئ' : course.hasMindmap ? 'تحرير الخريطة في المنشئ' : 'إنشاء خريطة في المنشئ'}
+            {builder ? 'إغلاق منشئ الخريطة' : course.hasMindmap ? 'تحرير الخريطة الذهنية' : '+ إنشاء الخريطة الذهنية'}
           </button>
         </div>
       )}

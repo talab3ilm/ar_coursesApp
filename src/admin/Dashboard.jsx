@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { listAllCourses, listSubjects } from '../lib/admin'
+import { listAllCourses, listMindmapIds, listSubjects } from '../lib/admin'
 import { ErrorBox, Loading } from '../components/Loading.jsx'
 import CourseForm from './CourseForm.jsx'
 import TypographySettings from './TypographySettings.jsx'
@@ -12,13 +12,16 @@ export default function Dashboard({ email, onSignOut }) {
   const [courses, setCourses] = useState(null)
   const [error, setError] = useState(null)
   const [editing, setEditing] = useState(null) // id du cours, 'new', ou null
+  const [openBuilder, setOpenBuilder] = useState(false) // ouvrir le formulaire directement sur le constructeur de carte
+  const [withMap, setWithMap] = useState(new Set())
   const [filter, setFilter] = useState('')
 
   const reload = () =>
-    Promise.all([listSubjects(), listAllCourses()])
-      .then(([s, c]) => {
+    Promise.all([listSubjects(), listAllCourses(), listMindmapIds()])
+      .then(([s, c, m]) => {
         setSubjects(s)
         setCourses(c)
+        setWithMap(m)
       })
       .catch(setError)
 
@@ -34,8 +37,10 @@ export default function Dashboard({ email, onSignOut }) {
       <CourseForm
         id={editing === 'new' ? null : editing}
         subjects={subjects}
+        openBuilder={openBuilder}
         onDone={() => {
           setEditing(null)
+          setOpenBuilder(false)
           reload()
         }}
       />
@@ -85,6 +90,7 @@ export default function Dashboard({ email, onSignOut }) {
               <th>التاريخ</th>
               <th>الحالة</th>
               <th>الإدارة</th>
+              <th>الخريطة</th>
               <th></th>
             </tr>
           </thead>
@@ -100,6 +106,17 @@ export default function Dashboard({ email, onSignOut }) {
                 <td>{c.date ?? '—'}</td>
                 <td>{c.published ? <span className="ok">منشور</span> : <span className="ko">غير منشور</span>}</td>
                 <td>{c.managed_by === 'manual' ? 'يدوي' : 'آلي'}</td>
+                <td>
+                  <button
+                    className={`tbtn ${withMap.has(c.id) ? '' : 'suggest'}`}
+                    onClick={() => {
+                      setOpenBuilder(true)
+                      setEditing(c.id)
+                    }}
+                  >
+                    {withMap.has(c.id) ? 'تحرير الخريطة' : '+ إنشاء الخريطة'}
+                  </button>
+                </td>
                 <td>
                   <button className="tbtn" onClick={() => setEditing(c.id)}>
                     تعديل
