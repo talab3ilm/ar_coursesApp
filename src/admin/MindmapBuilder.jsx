@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import MindmapTab from '../components/MindmapTab.jsx'
+import MindmapTab, { TAGS as TAG_STYLES } from '../components/MindmapTab.jsx'
 import { parseMindmap, saveMindmap, uploadFile } from '../lib/admin'
 
 // Constructeur de carte mentale (/admin) : édite l'arbre JSON canonique dans le navigateur,
@@ -33,7 +33,7 @@ function updateAt(tree, path, fn) {
 function clean(n) {
   const out = { t: (n.t ?? '').trim() }
   if (n.n && String(n.n).trim()) out.n = String(n.n).trim()
-  const d = (n.d ?? []).filter((x) => x[1]?.trim()).map(([tag, text, src]) => [tag || 'def', text.trim(), (src ?? '').trim()])
+  const d = (n.d ?? []).filter((x) => x[1]?.trim()).map(([tag, text, src]) => [tag || 'def', text.trim(), String(src ?? '').trim()])
   if (d.length) out.d = d
   const q = (n.q ?? []).filter((x) => x[0]?.trim()).map(([a, b]) => [a.trim(), (b ?? '').trim()])
   if (q.length) out.q = q
@@ -432,13 +432,21 @@ export default function MindmapBuilder({ courseId, subjectId, title, initialTree
             <h3>الشرح</h3>
             {(current.d ?? []).map((d, i) => (
               <div key={i} className="row-item">
-                <select value={d[0]} onChange={(e) => setRow('d', i, 0, e.target.value)} aria-label="النوع">
+                <div className="tagpick" role="radiogroup" aria-label="النوع">
                   {TAGS.map(([k, label]) => (
-                    <option key={k} value={k}>
+                    <button
+                      key={k}
+                      type="button"
+                      role="radio"
+                      aria-checked={d[0] === k}
+                      className="chip"
+                      style={{ '--c': TAG_STYLES[k][1] }}
+                      onClick={() => setRow('d', i, 0, k)}
+                    >
                       {label}
-                    </option>
+                    </button>
                   ))}
-                </select>
+                </div>
                 <textarea rows={2} value={d[1]} onChange={(e) => setRow('d', i, 1, e.target.value)} placeholder="النص" />
                 <input className="src" value={d[2] ?? ''} onChange={(e) => setRow('d', i, 2, e.target.value)} placeholder="ص" title="المصدر: رقم الصفحة، أو خ (الخريطة)، أو + (إضافة)" />
                 <button className="tbtn" onClick={() => delRow('d', i)} aria-label="حذف">

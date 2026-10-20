@@ -5,7 +5,7 @@ import { matches } from '../lib/arabic'
 import { withQuran } from '../lib/quran.jsx'
 
 // Libellés et couleurs des tags de `d`, repris de miniApp.html.
-const TAGS = {
+export const TAGS = {
   def: ['تعريف', 'var(--b4)'],
   key: ['خلاصة', 'var(--accent)'],
   ex: ['مثال', 'var(--b5)'],

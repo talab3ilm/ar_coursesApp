@@ -359,3 +359,5 @@ traitements longs délégués à des sous-agents en arrière-plan.
   « حفظ الخريطة في القاعدة » : upsert `mindmaps` + `mindmap.json` dans Storage ; le vault reste la source : remettre
   `mindmap-ok.json` dans le dossier du cours (ou figer le cours en `manual`), sinon le prochain run CI le remplace s'il
   trouve un `mindmap-ok.json` dans le vault. Vérifié avec Playwright (bureau 1280 et 390×844) sur un cours temporaire.
+  Types d'explication choisis par pastilles colorées (`.chip`, couleurs de `TAGS` exporté par `MindmapTab.jsx`) ;
+  la carte de la sira (48 nœuds, sources parfois numériques) se recharge et se réexporte sans perte (vérifié).

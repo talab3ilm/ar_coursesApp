@@ -485,7 +485,13 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .node-actions { gap: 6px; margin-bottom: 10px; }
 .node-actions .tbtn.danger { color: var(--ko); border-color: var(--ko); margin-inline-start: auto; }
 .node-fields { margin-bottom: 0; }
-.row-item { display: grid; grid-template-columns: auto 1fr 56px auto; gap: 6px; margin-bottom: 6px; align-items: start; }
+.row-item { display: grid; grid-template-columns: 1fr 56px auto; gap: 6px; margin-bottom: 10px; align-items: start; }
+.row-item .tagpick { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px; }
+.chip {
+  border: 1px solid var(--c); color: var(--c); background: transparent; border-radius: 999px;
+  padding: 2px 10px; font-size: 0.8rem; font-weight: 600; cursor: pointer;
+}
+.chip[aria-checked='true'] { background: var(--c); color: var(--surface); }
 .row-item.q { grid-template-columns: 1fr 1fr auto; }
 .row-item select, .row-item textarea, .row-item input, .quick textarea {
   border: 1px solid var(--line); background: var(--surface); color: inherit; border-radius: 6px; padding: 6px 8px;
@@ -499,8 +505,9 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 @media (max-width: 700px) {
   .builder-grid { grid-template-columns: 1fr; }
   .builder .outline { max-height: 40vh; }
-  .row-item { grid-template-columns: 1fr 1fr; }
+  .row-item { grid-template-columns: 1fr auto; }
   .row-item textarea { grid-column: 1 / -1; }
+  .chip { min-height: 32px; }
   .row-item.q { grid-template-columns: 1fr auto; }
   .row-item.q textarea { grid-column: auto; }
   .row-item.q textarea:first-child { grid-column: 1 / -1; }
