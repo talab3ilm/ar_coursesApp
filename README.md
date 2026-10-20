@@ -43,3 +43,10 @@ les étudiants pour leur révision et n'est pas inclus dans le dépôt. Le site 
 enregistrements des cours ni les supports de l'académie, conformément à son règlement intérieur
 (<https://albajiacademy.com/rules/>), et ne la représente pas. Toute demande de retrait d'un
 contenu peut être faite dans les issues de ce dépôt.
+
+## Autorisation de l'académie
+
+Une demande d'autorisation écrite a été envoyée à l'administration de l'académie le
+2026-10-20 ; son texte est dans [docs/demande-autorisation.md](docs/demande-autorisation.md).
+**Réponse : en attente.** Elle sera consignée ici et dans ce fichier dès réception, avec les
+conditions éventuelles, qui seront appliquées au site.
