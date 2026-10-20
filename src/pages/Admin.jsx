@@ -13,6 +13,7 @@ export default function Admin() {
   const [adminFor, setAdminFor] = useState(null) // { userId, value } : résultat de la liste blanche
   const [form, setForm] = useState({ email: '', code: '' })
   const [sent, setSent] = useState(false) // courriel envoyé : on attend le clic sur le lien ou le code
+  const [showCode, setShowCode] = useState(false) // le code n'est dans le courriel qu'avec un modèle personnalisé (SMTP propre)
   const [error, setError] = useState(null)
   const [busy, setBusy] = useState(false)
 
@@ -72,29 +73,39 @@ export default function Admin() {
             <p className="ok" role="status">
               إن كان البريد مسجّلا فقد وصلته رسالة: افتح رابط الدخول فيها (من هذا الجهاز أو غيره).
             </p>
-            <label>
-              أو أدخل الرمز المذكور في الرسالة
-              <input
-                dir="ltr"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                pattern="[0-9]{6,8}"
-                value={form.code}
-                onChange={(e) => setForm({ ...form, code: e.target.value })}
-              />
-            </label>
+            {showCode ? (
+              <label>
+                الرمز المذكور في الرسالة
+                <input
+                  dir="ltr"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  pattern="[0-9]{6,8}"
+                  autoFocus
+                  value={form.code}
+                  onChange={(e) => setForm({ ...form, code: e.target.value })}
+                />
+              </label>
+            ) : (
+              <button type="button" className="link small" onClick={() => setShowCode(true)}>
+                وصلك رمز رقمي بدل الرابط؟
+              </button>
+            )}
           </>
         )}
         {error && <p className="ko">{error}</p>}
-        <button className="btn" disabled={busy || (sent && !form.code.trim())}>
-          {sent ? 'دخول بالرمز' : 'إرسال رابط الدخول'}
-        </button>
+        {(!sent || showCode) && (
+          <button className="btn" disabled={busy || (sent && !form.code.trim())}>
+            {sent ? 'دخول بالرمز' : 'إرسال رابط الدخول'}
+          </button>
+        )}
         {sent && (
           <button
             type="button"
             className="link"
             onClick={() => {
               setSent(false)
+              setShowCode(false)
               setForm({ ...form, code: '' })
               setError(null)
             }}
