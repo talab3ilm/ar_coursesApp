@@ -159,6 +159,10 @@ mêmes marqueurs remplissent `chapters`. Dans Obsidian, le marqueur reste lisibl
 - Journaux CI : si ce dépôt est public, les journaux des actions le sont aussi. `publish.py`
   n'affiche jamais le contenu des résumés ni des cartes, seulement des noms et des comptages.
 - Python des outils : `python3 -I` pour tout script qui lit des fichiers venant du vault.
+- SQL Supabase : depuis le 2026-10-30, Supabase n'accorde plus automatiquement l'accès Data API aux nouvelles
+  tables de `public` (courriel du 2026-10-21). Toute nouvelle table ou fonction a ses `grant` explicites (`anon`,
+  `authenticated`, `service_role`, au strict nécessaire) dans le même fichier SQL que son `create`, plus ses
+  politiques RLS. Les tables existantes sont toutes déjà conformes (vérifié le 2026-10-21).
 - Aucun contenu de cours (résumés, transcriptions, PDF) n'est commité ici, sauf un jeu
   d'essai minimal dans `fixtures/` pour les tests.
 
